@@ -36,6 +36,13 @@ void graphConnectVertices(Graph g, char *src,  char *dst);
 int graphConnectionExists(Graph g, char *src,  char *dst);
 
 /*
+ * Returns a NULL terminated array of pointers to keys that point to the
+ * given key
+ */
+
+char **graphGetVerticesIn(Graph g, char *key);
+
+/*
  * Returns TRUE if the graph contains the key key
  */
 

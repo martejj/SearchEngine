@@ -57,10 +57,14 @@ Graph graphCreate(int size) {
     
     Graph g = calloc(1, sizeof(*g));
     
+    assert(g != NULL);
+    
     g->maxVertices = size;
     
     // Sizeof list (the pointer) as it is an array of pointers
     g->vertices = calloc(size, sizeof(List));
+    
+    assert(g->vertices != NULL);
     
     return g;
     
@@ -71,6 +75,8 @@ static Vertex newVertex(char *key) {
     
     Vertex new = calloc(1, sizeof(*new));
     
+    assert(new != NULL);
+    
     new->key = mystrdup(key);
     
     return new;
@@ -80,6 +86,8 @@ static Vertex newVertex(char *key) {
 static List newVertexList(char *key) {
     
     List new = calloc(1, sizeof(*new));
+    
+    assert(new != NULL);
     
     new->key = mystrdup(key);
     
@@ -92,6 +100,8 @@ static List newVertexList(char *key) {
  */
 
 void graphFree(Graph g) {
+    
+    assert(g != NULL);
     
     int i = 0;
     
@@ -108,10 +118,9 @@ void graphFree(Graph g) {
 }
 
 static void listFree(List list) {
-    if (list == NULL) return;
+
     assert(list != NULL);
     assert(list->key != NULL);
-    // printf("%s\n", list->key);
     
     Vertex curr = list->head;
     Vertex prev = NULL;
@@ -163,7 +172,8 @@ void graphConnectVertices(Graph g, char *src,  char *dst) {
         
     assert(list != NULL); // TODO
     
-    // So we dont get multiple edges between same vertex
+    // So we dont get multiple edges between same vertex make sure it 
+    // doesnt already exist in the adjacency list of src
     if (listContains(list, dst)) return;
     
     appendVertex(list, newVertex(dst));
@@ -204,6 +214,10 @@ static void appendVertex(List list, Vertex vertex) {
 
 int graphConnectionExists(Graph g, char *src,  char *dst) {
     
+    assert(g != NULL);
+    
+    // Get the adjacency list of src and see if dst exists in it
+    
     List list = getAdjacencyListFromKey(g, src);
     
     Vertex curr = list->head;
@@ -220,10 +234,18 @@ int graphConnectionExists(Graph g, char *src,  char *dst) {
     
 }
 
+/*
+ * Returns TRUE if the given List contains the key (e.g. list->key is 
+ * connected to key)
+ */
+
 static int listContains(List list, char *key) {
+    
+    assert(list != NULL);
     
     Vertex curr = list->head;
     
+    // Loop over the given list and see if key is contained
     while (curr != NULL) {
         
         if (strcmp(curr->key, key) == 0) return TRUE;
@@ -247,6 +269,7 @@ int graphKeyExists(Graph g, char *key) {
     
     int i = 0;
     
+    // Loop over vertices list and see if it is contained
     while (i < g->numVertices) {
         
         // If it isnt null and the keys are the same then it exists
@@ -261,7 +284,101 @@ int graphKeyExists(Graph g, char *key) {
 }
 
 /*
- * Returns the Adjacency List of a given Key
+ * Returns the number of vertices that connect to a key
+ */
+
+static int getNumVerticesIn(Graph g, char *key) {
+    
+    int numVertices = 0;
+    
+    int i = 0;
+    
+    while (i < g->numVertices) {
+        
+        Vertex curr = g->vertices[i]->head;
+        
+        // Minor optimisation as we never see the same vertex
+        // in a vertex adjacency twice
+        int found = FALSE;
+        
+        while (curr != NULL && !found) {
+            
+            if (strcmp(curr->key, key) == 0) {
+                
+                numVertices++;
+                
+                found = TRUE;
+                
+            }
+            
+            curr = curr->next;
+            
+        }
+        
+        i++;
+        
+    }
+    
+    return numVertices;
+    
+}
+
+/*
+ * Returns a NULL terminated array of pointers to keys that point to the
+ * given key
+ */
+
+char **graphGetVerticesIn(Graph g, char *key) {
+
+    int numVertices = getNumVerticesIn(g, key);
+    
+    // + 1 so we can add the NULL to the end
+    char **tokens = calloc(numVertices + 1, sizeof(char *));
+    
+    int currToken = 0;
+    
+    int i = 0;
+    
+    // Loop over every vertex
+    while (i < g->numVertices) {
+        
+        Vertex curr = g->vertices[i]->head;
+        
+        // Minor optimisation as we never see the same vertex
+        // in a vertex adjacency twice
+        int found = FALSE;
+        
+        // Loop over every vertex in the adjacency list
+        while (curr != NULL && !found) {
+            
+            if (strcmp(curr->key, key) == 0) {
+                
+                // TODO strdup or use same pointer?
+                tokens[currToken] = mystrdup(g->vertices[i]->key);
+                
+                found = TRUE;
+                
+                currToken++;
+                
+                
+            }
+            
+            curr = curr->next;
+            
+        }
+        
+        i++;
+        
+    }
+    
+    tokens[numVertices + 1] = NULL;
+    
+    return tokens;
+    
+}
+
+/*
+ * Returns the adjacency list of a given Key
  */
 
 static List getAdjacencyListFromKey(Graph g, char *key) {
@@ -274,7 +391,8 @@ static List getAdjacencyListFromKey(Graph g, char *key) {
     while (i < g->numVertices) {
         
         // If it isnt null and the keys are the same then it is the key
-        if (g->vertices[i] != NULL && strcmp(key, g->vertices[i]->key) == 0) return g->vertices[i];
+        if (g->vertices[i] != NULL && strcmp(key, g->vertices[i]->key) == 0) 
+            return g->vertices[i];
         
         i++;
         
@@ -294,12 +412,14 @@ void graphPrint(Graph g) {
     
     int i = 0;
     
+    // Loop over every vertex entry
     while (i < g->numVertices && g->vertices[i] != NULL) {
         
         printf("%s", g->vertices[i]->key);
         
         Vertex curr = g->vertices[i]->head;
         
+        // Then loop over every adjacency that it has and print them
         while (curr != NULL) {
             
             printf(" -> %s", curr->key);
@@ -308,6 +428,7 @@ void graphPrint(Graph g) {
             
         }
         
+        // X denotes NULL
         printf(" -> X\n");
         
         printf("|\n");
@@ -321,11 +442,34 @@ void graphPrint(Graph g) {
     
 }
 
+void printTokens(char **tokens) {
+    
+    int i = 0;
+    
+    while (tokens[i] != NULL) {
+        
+        printf("%s\n", tokens[i]);
+        
+        i++;
+        
+    }
+    
+}
+
+/*
+ * As strdup does not exist in c11
+ */
+
 static char *mystrdup(char *string) {
+    
+    assert(string != NULL);
     
     int len = strlen(string);
     
+    // +1 for nul-terminator
     char *retString = calloc(len + 1, sizeof(char));
+    
+    assert(retString != NULL);
     
     strcat(retString, string);
     
@@ -380,6 +524,9 @@ void graphTest() {
     graphConnectVertices(g, "d", "a");
     assert(graphConnectionExists(g, "d", "b"));
     
+    graphConnectVertices(g, "e", "c");
+    assert(graphConnectionExists(g, "e", "c"));
+    
     printf("Testing adding two edges between same vertices\n");
     
     graphConnectVertices(g, "d", "c");
@@ -392,7 +539,18 @@ void graphTest() {
     assert(graphConnectionExists(g, "d", "d"));
     graphConnectVertices(g, "d", "d");   
     
+    assert(getNumVerticesIn(g, "e") == 0);
+    assert(getNumVerticesIn(g, "d") == 2);
+    assert(getNumVerticesIn(g, "a") == 1);
+    assert(getNumVerticesIn(g, "z") == 0);
+    
+    printTokens(graphGetVerticesIn(g, "e"));
+    printTokens(graphGetVerticesIn(g, "d"));
+    printTokens(graphGetVerticesIn(g, "a"));
+    printTokens(graphGetVerticesIn(g, "z"));
+    
     graphPrint(g);
+    
     
     graphFree(g);
     
