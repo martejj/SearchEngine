@@ -1,16 +1,13 @@
-#include "readData.h"
-#include "Item.h"
-#include "SortedList.h"
-#include "BTree.h"
-#include "Queue.h"
-#include "list.h"
-#include "graph.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
+#include "readData.h"
+#include "BTree.h"
+#include "list.h"
+#include "graph.h"
 
 static char *mystrdup(char *string);
 
@@ -21,7 +18,7 @@ static char *concat2(const char *s1, const char *s2);
  * separated by a space)
  */
  
-List getListOfWords(char *fileName) {
+List getListOfWordsFromFile(char *fileName) {
 	
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
@@ -50,6 +47,84 @@ List getListOfWords(char *fileName) {
 }
 
 /*
+ * Returns a list of every word in section one of the file
+ */
+ 
+List getListOfSec1FromFile(char *fileName) {
+	
+	FILE *file;
+	if ((file = fopen(fileName, "r")) == NULL) {
+		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
+		return NULL;
+	}
+    
+    List list = listCreate();
+    
+    char buffer[BUFSIZ] = {0};
+        
+    // Get rid of the #start section-1
+    fscanf(currentFile, "%s", buffer);
+    fscanf(currentFile, "%s", buffer);
+            
+    while (fscanf(currentFile, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+
+        listAddToTail(list, buffer);
+        
+    }
+    
+    fclose(file);
+    
+    return list;
+    
+}
+
+/*
+ * Returns a list of every word in section two of the file
+ */
+ 
+List getListOfSec2FromFile(char *fileName) {
+	
+	FILE *file;
+	if ((file = fopen(fileName, "r")) == NULL) {
+		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
+		return NULL;
+	}
+    
+    List list = listCreate();
+    
+    char buffer[BUFSIZ] = {0};
+    
+    FILE *file;
+	if ((file = fopen(urlFileName, "r")) == NULL) {
+		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
+	    return NULL;
+	}
+
+	// Skip to #end Section-1
+
+	char buffer[BUFSIZE] = {0};
+
+	while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+        
+    }
+
+	// Skip Section-1 #start Section-2
+	fscanf(ptr, "%*s %*s %*s %s", buf); // TODO correct?
+	
+	while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+	
+	    // Add the trimmed word to the words list
+        listAddToTail(words, trim(buffer));
+        
+    }
+    
+    fclose(file);
+
+    return list;
+    
+}
+
+/*
  * Read all url files from 'urls' list parameter. Construct a binary
  * tree with each node contains the word and all urls in which it is found.
  */
@@ -62,40 +137,10 @@ BTreePtr getBTree(List urls) {
 	
 	while (currUrl != NULL) {
 	    
-	    List words = listCreate();
-	    
-	    // Open the URL
-	    
 		char *url = urls->val;
 		char *urlFileName = concat2(url, ".txt");
 
-		FILE *file;
-		if ((file = fopen(urlFileName, "r")) == NULL) {
-			fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-		    return NULL;
-		}
-
-		// Skip to #start Section-2
-
-		char buffer[BUFSIZE] = {0};
-
-		while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
-            
-        }
-
-		// Skip Section-1 #start Section-2
-		fscanf(ptr, "%*s %*s %*s %s", buf); // TODO
-		
-		// TODO why add to list just to add list to BTree
-		
-		while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
-		
-		    // Add the trimmed word to the words list
-            listAddToTail(words, trim(buffer));
-            
-        }
-		
-		fclose(file);
+		List words = getListOfSec2FromFile(urlFileName);
 		
 		ListNode currWord = words->head;
 		

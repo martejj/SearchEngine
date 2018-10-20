@@ -6,7 +6,7 @@
 #include "list.h"
 #include "readData.h"
 
-static char *mystrdup(char *string);
+Graph createURLGraph(char *dir);
 
 int main(int argc, char *argv[]) {
     
@@ -29,104 +29,7 @@ int main(int argc, char *argv[]) {
         
     }
     
-    char collectionstxt[BUFSIZ] = {0};
-    strcat(collectionstxt, dir);
-    strcat(collectionstxt, "/");
-    strcat(collectionstxt, "collection.txt");
-    
-    FILE *collection = fopen(collectionstxt, "r");
-    
-    if (collection == NULL) {
-        printf("error opening file\n");
-        exit(1);
-    }
-    
-    // Array of pointers to strings (each string is a URL)
-    char *urls[BUFSIZ] = {0};
-    
-    char buffer[BUFSIZ] = {0};
-    
-    int numUrls = 0;
-    
-    while(fscanf(collection, "%s", buffer) == 1) {
-        
-        urls[numUrls] = mystrdup(buffer);
-        
-        // Effectively reseting the buffer
-        buffer[0] = '\0';
-        numUrls++;
-        
-    }
-    
-    // Just to make sure    
-    urls[numUrls] = NULL;
-    
-    Graph g = graphCreate(numUrls);
-    
-    // Add urls to the graph
-    
-    int i = 0;
-    
-    while (i < numUrls) {
-        
-        graphAddVertex(g, urls[i]);
-        i++;
-        
-    }
-    
-    // Read each url and 
-    
-    // Reset buffer
-    buffer[0] = '\0'; 
-    
-    i = 0;
-    
-    while (i < numUrls) {
-        
-        char currentUrl[BUFSIZ] = {0};
-        strcat(currentUrl, dir);
-        strcat(currentUrl, "/");
-        strcat(currentUrl, urls[i]);
-        strcat(currentUrl, ".txt");
-        
-        FILE *currentFile = fopen(currentUrl, "r");
-        
-        if (currentFile == NULL) {
-            
-            printf("Couldnt open\n");
-            exit(1);
-            
-        }
-        
-        printf("%s\n", currentUrl);
-        
-        // Get rid of the #start section-1
-        fscanf(currentFile, "%s", buffer);
-        printf("%s\n", buffer);
-        fscanf(currentFile, "%s", buffer);
-        printf("%s\n", buffer);
-                
-        while (fscanf(currentFile, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
-
-            // Link the two
-            graphConnectVertices(g, urls[i], buffer);
-            buffer[0] = '\0';
-            
-        }
-        
-        i++;
-        
-    }
-    
-    i = 0;
-    
-    while (i < numUrls) {
-        
-        
-        
-        i++;
-        
-    }
+    Graph g = createURLGraph(dir);
     
     graphPrint(g);
     
@@ -134,19 +37,65 @@ int main(int argc, char *argv[]) {
     
 }
 
-static char *mystrdup(char *string) {
+Graph createURLGraph(char *dir) {
+
+    char collectionFileName[BUFSIZ] = {0};
+    char directoryBase[BUFSIZ] = {0};
     
-    assert(string != NULL);
+    if (dir == NULL) {
+        
+        strcat(collectionFileName, "collection.txt");
+        
+    } else {
+        
+        strcat(directoryBase, dir);
+        strcat(directoryBase, "/");
+        
+        strcat(collectionFileName, dir);
+        strcat(collectionFileName, "/");
+        strcat(collectionFileName, "collection.txt");
+        
+    }
     
-    int len = strlen(string);
+    List urls = getListOfWords(collectionFileName);
     
-    // +1 for nul-terminator
-    char *retString = calloc(len + 1, sizeof(char));
+    Graph graph = graphCreate(urls->nNodes);
     
-    assert(retString != NULL);
+    ListNode currURL = urls->head;
     
-    strcat(retString, string);
+    while (currURL != NULL) {
+        
+        graphAddVertex(graph, curr->data);
+        curr = curr->next;
+        
+    }
     
-    return retString;
+    currURL = urls->head;
+
+    while (currURL != NULL) {
+        
+        char urlFileName[BUFSIZ] = {0};
+        strcat(urlFileName, directoryBase);
+        strcat(urlFileName, currURL->data);
+        strcat(urlFileName, ".txt");
+        
+        List outURLS = getListOfSec1FromFile(urlFileName);
+        
+        ListNode currOutURL = outURLS->head;
+        
+        while (currOutURL != NULL) {
+            
+            graphConnectVertices(currURL, currOutURL);
+            
+            currOutURL = currOutURL->next;
+            
+        }
+        
+        currURL = currURL->next;
+        
+    }
+    
+    return graph;
     
 }
+

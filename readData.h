@@ -1,8 +1,6 @@
+
 #ifndef READDATA_H
 #define READDATA_H
-
-#include "SortedList.h"
-#include "BTree.h"
 
 #define BLANK_TOKENS " \t\r\n\v\f"
 #define COMMA_BLANK_TOKENS " ,\t\r\n\v\f"

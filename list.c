@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "list.h"
+
+#define TRUE    1
+#define FALSE   0
 
 static char *mystrdup(char *string);
 
@@ -142,7 +146,7 @@ int listContains(List list, char *data) {
         
     while (curr != NULL) {
     
-        if (strcmp(curr->data, data == 0) return TRUE;
+        if (strcmp(curr->data, data) == 0) return TRUE;
     
         curr = curr->next;
         

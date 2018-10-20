@@ -34,6 +34,7 @@ void printSLtoFile(SortedListPtr head, FILE *fptr);
  */
 
 int main(int argc, char *argv[]) {
+
     List list = NULL;
     //read collection file to get all url data file.
     if (argc >= 2) {

@@ -1,5 +1,5 @@
 DEPS=graph.c list.c readData.c
-CFLAGS=-Wall -Werror -lm -std=c11 -gdwarf-2 -ggdb3
+CFLAGS=-Werror -lm -std=c11 -gdwarf-2 -ggdb3
 
 pagerank :
 	gcc $(CFLAGS) -o pagerank pagerank.c $(DEPS)

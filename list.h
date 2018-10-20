@@ -1,18 +1,18 @@
 
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef LIST_H
+#define LIST_H
 
-typedef struct _nodeNode *ListNode;
+typedef struct _listNode *ListNode;
 typedef struct _list *List;
 
-struct _node {
+struct _listNode {
 
     char *data;
     ListNode next;
 
 };
 
-struct _listNode {
+struct _list {
     
     int nNodes;
     ListNode head;
