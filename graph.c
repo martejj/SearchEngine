@@ -170,7 +170,7 @@ void graphConnectVertices(Graph g, char *src,  char *dst) {
         
     List list = getAdjacencyListFromKey(g, src);
         
-    assert(list != NULL); // TODO
+    assert(list != NULL); // TODO add it?
     
     // So we dont get multiple edges between same vertex make sure it 
     // doesnt already exist in the adjacency list of src
@@ -354,12 +354,13 @@ char **graphGetVerticesIn(Graph g, char *key) {
             if (strcmp(curr->key, key) == 0) {
                 
                 // TODO strdup or use same pointer?
-                tokens[currToken] = mystrdup(g->vertices[i]->key);
+                // tokens[currToken] = mystrdup(g->vertices[i]->key);
+                // So we dont worry about freeing strings in tokens
+                tokens[currToken] = g->vertices[i]->key;
                 
                 found = TRUE;
                 
                 currToken++;
-                
                 
             }
             

@@ -8,21 +8,18 @@
 #define COMMA_BLANK_TOKENS " ,\t\r\n\v\f"
 
 /*
- * Read collection file.
- * Return list of url files in ascending alphabetical order
+ * Returns a list of every word in the file (every section of text
+ * separated by a space)
  */
-SortedListPtr getCollection(char* file);
+ 
+List getListOfWords(char *fileName);
 
 /*
  * Read all url files from 'urls' list parameter. Construct a binary
  * tree with each node contains the word and all urls in which it is found.
  */
-BTreePtr getBTree(SortedListPtr urls);
-
-/*
- * Utility function, return concatenation result of two string
- */
-char* concat2(const char* s1, const char* s2);
+ 
+BTreePtr getBTree(List urls);
 
 /*
  * Utility function. It does:
@@ -31,6 +28,7 @@ char* concat2(const char* s1, const char* s2);
  * .remove the following punctuation marks, if they appear at the end of a word:
  *		'.' (dot), ',' (comma), ';' (semicolon), ? (question mark)
  */
-char* trim(char* string);
+
+char *trim(char *string);
 
 #endif

@@ -3,85 +3,121 @@
 #include "SortedList.h"
 #include "BTree.h"
 #include "Queue.h"
+#include "list.h"
+#include "graph.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+#include <errno.h>
+
+static char *mystrdup(char *string);
+
+static char *concat2(const char *s1, const char *s2);
 
 /*
- * Read file collection.txt.
- * Returns a list of url file names sorted by alphabetical order.
+ * Returns a list of every word in the file (every section of text
+ * separated by a space)
  */
-SortedListPtr getCollection(char* file) {
-	FILE* ptr = fopen(file, "r");
-	if (ptr == NULL) {
-		printf("%s: no such file.", file);
+ 
+List getListOfWords(char *fileName) {
+	
+	FILE *file;
+	if ((file = fopen(fileName, "r")) == NULL) {
+		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
 		return NULL;
 	}
-	SortedListPtr ls = NULL;
-	char buf[1000];
-	while (fscanf(ptr, "%s", buf) == 1) {
-		SLaddByValue(&ls, buf);
-	}
-	fclose(ptr);
-	return ls;
+    
+    List list = listCreate();
+    
+    char buffer[BUFSIZ] = {0};
+    
+    while(fscanf(file, "%s", buffer) == 1) {
+        
+        // Add the url to the buffer
+        listAddToTail(list, buffer);
+        
+        // Effectively reseting the buffer
+        buffer[0] = '\0';
+        
+    }
+    
+    fclose(file);
+    
+    return list;
+    
 }
 
 /*
  * Read all url files from 'urls' list parameter. Construct a binary
  * tree with each node contains the word and all urls in which it is found.
  */
-BTreePtr getBTree(SortedListPtr urls) {
+ 
+BTreePtr getBTree(List urls) {
+
 	BTreePtr tree = NULL;
-	while (urls != NULL) {
-		SortedListPtr outUrls = NULL;
-		SortedListPtr words = NULL;
-		Item url = urls->val;
-		char* fn = concat2(url, ".txt");
+	
+	ListNode currUrl = urls->head;
+	
+	while (currUrl != NULL) {
+	    
+	    List words = listCreate();
+	    
+	    // Open the URL
+	    
+		char *url = urls->val;
+		char *urlFileName = concat2(url, ".txt");
 
-		FILE* ptr = fopen(fn, "r");
-		if (ptr == NULL) {
-			printf("%s: no such file.", url);
-			return NULL;
+		FILE *file;
+		if ((file = fopen(urlFileName, "r")) == NULL) {
+			fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
+		    return NULL;
 		}
 
-		char buf[1000];
-		//skip #start Section-1
-		fscanf(ptr, "%*s %*s %s ", buf);
+		// Skip to #start Section-2
 
-		while (strcmp("#end", buf)) {
-			SLaddByValue(&outUrls, buf);
-			if (fscanf(ptr, "%s", buf) != 1) {
-				break;
-			}
-		}
+		char buffer[BUFSIZE] = {0};
 
-		//skip Section-1 #start Section-2
-		fscanf(ptr, "%*s %*s %*s %s", buf);
-		while (strcmp("#end", buf)) {
-			SLaddByValue(&words, trim(buf));
-//			SLprint(words);
-			if (fscanf(ptr, "%s", buf) != 1) {
-				break;
-			}
+		while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+            
+        }
+
+		// Skip Section-1 #start Section-2
+		fscanf(ptr, "%*s %*s %*s %s", buf); // TODO
+		
+		// TODO why add to list just to add list to BTree
+		
+		while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+		
+		    // Add the trimmed word to the words list
+            listAddToTail(words, trim(buffer));
+            
+        }
+		
+		fclose(file);
+		
+		ListNode currWord = words->head;
+		
+		while (currWord != NULL) {
+		
+			BTaddNode(&tree, currWord->data, currUrl->data);
+			
+			currWord = currWord->next;
+			
 		}
-		fclose(ptr);
-		SortedListPtr tmp = words;
-		while (tmp != NULL) {
-			Item word = tmp->val;
-			BTaddNode(&tree, word, url);
-			tmp = tmp->next;
-		}
-		SLfree(words);
-		urls = urls->next;
+		
+		listFree(words);
+		
+		currUrl = currUrl->next;
 	}
+	
 //	BTprint(tree);
 	return tree;
 }
 
 // combining two strings together (from previous assignment)
-char* concat2(const char* s1, const char* s2) {
+static char* concat2(const char* s1, const char* s2) {
 	char *result = NULL;
 	if (s1 != NULL && s2 != NULL) {
 		result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
@@ -141,4 +177,25 @@ char* trim(char* string) {
 		i++;
 	}
 	return tmp;
+}
+
+/*
+ * As strdup does not exist in c11
+ */
+
+static char *mystrdup(char *string) {
+    
+    assert(string != NULL);
+    
+    int len = strlen(string);
+    
+    // +1 for nul-terminator
+    char *retString = calloc(len + 1, sizeof(char));
+    
+    assert(retString != NULL);
+    
+    strcat(retString, string);
+    
+    return retString;
+    
 }

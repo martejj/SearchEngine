@@ -34,27 +34,27 @@ void printSLtoFile(SortedListPtr head, FILE *fptr);
  */
 
 int main(int argc, char *argv[]) {
-    SortedListPtr ls = NULL;
+    List list = NULL;
     //read collection file to get all url data file.
     if (argc >= 2) {
-        ls = getCollection(argv[1]);
+        list = getListOfWords(argv[1]);
     } else {
-        ls = getCollection("collection.txt");
+        list = getListOfWords("collection.txt");
     }
     
     //read each url file and build a binary tree.
-    BTreePtr t = getBTree(ls);
+    BTreePtr tree = getBTree(list);
     
-    FILE *fptr = fopen("invertedIndex.txt", "w");
+    FILE *file;
     
-    if (fptr == NULL) {
-        printf("Error!");
+    if ((file = fopen("invertedIndex.txt", "w")) == NULL) {
+        fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
         exit(1);
     }
     
-    printBTtoFile(t, fptr);
-    fclose(fptr);
-    BTfree(t);
+    printBTtoFile(tree, file);
+    fclose(file);
+    BTfree(tree);
     return 0;
 }
 
@@ -70,17 +70,5 @@ void printBTtoFile(BTreePtr root, FILE *fptr) {
     printBTtoFile(root->right, fptr);
 }
 
-/*
- * This out put a sorted list to a file in desired format as specified
- * in assignment requirement.
- */
-void printSLtoFile(SortedListPtr head, FILE *fptr) {
-    SortedListPtr current = head;
-    while (current != NULL) {
-        fprintf(fptr,"%s ", current->val);
-        current = current->next;
-    }
-    fprintf(fptr,"%s", "\n");
-}
 
 
