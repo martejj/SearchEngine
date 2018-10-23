@@ -1,5 +1,5 @@
 // Item.h  ... definition for items in Queues
-// Written by John Shepherd, March 2013
+// Written by John Shepherd, March 2013 - copied from labs
 
 #ifndef ITEM_H
 #define ITEM_H

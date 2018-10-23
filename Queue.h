@@ -1,5 +1,5 @@
 // Queue.h ... interface to Queue ADT
-// Written by John Shepherd, March 2013
+// Written by John Shepherd, March 2013 - copied from labs
 
 #ifndef QUEUE_H
 #define QUEUE_H
