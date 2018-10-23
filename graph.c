@@ -192,10 +192,11 @@ void graphConnectVertices(Graph g, int src,  int dst) {
     
     assert(g != NULL);
     
+    // No self links are allowed
     if (src == dst) return;
         
     if (!graphIsIDValid(g, src) || !graphIsIDValid(g, dst)) return;
-        
+    
     List list = g->vertices[src];
         
     assert(list != NULL); // TODO add it?

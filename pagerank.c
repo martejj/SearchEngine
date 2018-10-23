@@ -29,21 +29,29 @@ int main(int argc, char *argv[]) {
     int maxIters = 0;
     char *dir;
     
-    if (argc != 5) {
-        
-        printf("Usage: %s dampingFactor maxdiff maxiters dir\n", argv[0]);
-        exit(1);
-        
-    } else {
+    if (argc == 5) {
         
         sscanf(argv[1], "%lf", &damp);
         sscanf(argv[2], "%lf", &diffPR);
         maxIters = atoi(argv[3]);
         dir = argv[4];
         
+    } else if (argc == 4) {
+        
+        sscanf(argv[1], "%lf", &damp);
+        sscanf(argv[2], "%lf", &diffPR);
+        maxIters = atoi(argv[3]);
+    
+    } else {
+        
+        printf("Usage: %s dampingFactor maxdiff maxiters (dir)\n", argv[0]);
+        exit(1);
+        
     }
     
     Graph g = createURLGraph(dir);
+    
+    // Initialising data
     
     double currPR[g->numVertices];
     double nextPR[g->numVertices];
@@ -56,11 +64,11 @@ int main(int argc, char *argv[]) {
     
     getLinkData(g, numInLinks, numOutLinks, inLinks, outLinks);
     
-    
     int i = 0;
     
     while (i < g->numVertices) {
         
+        // We initialise to 1/N
         currPR[i] = 1.0/g->numVertices;
         nextPR[i] = 0;
         
@@ -68,39 +76,41 @@ int main(int argc, char *argv[]) {
         
     }
     
-    graphTest();
+    // graphPrint(g);
     
     int iteration = 0;
     
+    // So that we enter the while loop the first time
     double diff = diffPR;
     
     while (iteration < maxIters && diff >= diffPR) {
         
-        printf("%d\n", iteration);
-        
         i = 0;
         
+        // Loop over every vertex in the graph, i
         while (i < g->numVertices) {
              
             double summation = 0;
             
             int j = 0;            
             
+            // Loop over every vertex with an outlink to i, inLinks[i][j]
             while (j < numInLinks[i]) {
+            
                 // inLinks[i][j] is the id of the node that connects to i
                 
-                summation = 
-                 (currPR[j]
-                *calculateWin(inLinks[i][j], i, numOutLinks, numInLinks, outLinks, inLinks)
-                *calculateWout(inLinks[i][j], i, numOutLinks, numInLinks, outLinks, inLinks));
-                
-                // loop over every node that links to j
+                // Sum up every inlink's pagerank weight
+                summation += 
+                 (1.0*currPR[inLinks[i][j]]
+                *calculateWin(inLinks[i][j], i, numInLinks, numOutLinks, inLinks, outLinks)
+                *calculateWout(inLinks[i][j], i, numInLinks, numOutLinks, inLinks, outLinks));
                 
                 j++;
                 
             }
             
-            nextPR[i] = (1 - damp)/(g->numVertices) + damp*summation;
+            // Set the next PR to be equal to the aggregation and damp
+            nextPR[i] = (1.0 - damp)/(g->numVertices) + damp*summation;
             
             i++;
             
@@ -108,8 +118,10 @@ int main(int argc, char *argv[]) {
         
         i = 0;
         
+        // Calculate the difference so we can see how close we are
         diff = calculateDiff(nextPR, currPR, g->numVertices);
         
+        // currPR becomes nextPR for the next loop
         memcpy(currPR, nextPR, g->numVertices*sizeof(double));
         
         iteration++;
@@ -126,8 +138,6 @@ int main(int argc, char *argv[]) {
     // FILE *file = fopen(outName, "r");
     
     // fclose(file);
-    
-    graphPrint(g);
     
     graphFree(g);
     
@@ -153,6 +163,9 @@ double calculateDiff(double *nextPR, double *currPR, int n) {
 
 Graph createURLGraph(char *dir) {
 
+    // For debugging purposes we allow an optional dir, if it is used 
+    // we use the dir given otherwise we use the directory the program
+    // is executed in
     char collectionFileName[BUFSIZ] = {0};
     char directoryBase[BUFSIZ] = {0};
     
@@ -171,10 +184,14 @@ Graph createURLGraph(char *dir) {
         
     }
     
+    // All of the urls
     List urls = getListOfWordsFromFile(collectionFileName);
     
+    // Create memory for this graph
     Graph graph = graphCreate(urls->nNodes);
     
+    // Loop over every URL we read from collection.txt and add it to the
+    // graph
     ListNode currURL = urls->head;
     
     while (currURL != NULL) {
@@ -184,17 +201,24 @@ Graph createURLGraph(char *dir) {
         
     }
     
+    // Loop over every URL and now that they have been added to the
+    // graph we can add their connections
+    
     currURL = urls->head;
 
     while (currURL != NULL) {
         
+        // Open the file
         char urlFileName[BUFSIZ] = {0};
         strcat(urlFileName, directoryBase);
         strcat(urlFileName, currURL->data);
         strcat(urlFileName, ".txt");
         
+        // Reads from the url section
         List outURLS = getListOfSec1FromFile(urlFileName);
         
+        // Make an outlink from the currURL to the currOutURL vertices
+        // in the graph.
         ListNode currOutURL = outURLS->head;
         
         while (currOutURL != NULL) {
@@ -206,16 +230,20 @@ Graph createURLGraph(char *dir) {
             
         }
         
+        listFree(outURLS);
+        
         currURL = currURL->next;
         
     }
+    
+    listFree(urls);
     
     return graph;
     
 }
 
 void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
-    
+
     int i = 0;
     
     while (i < g->numVertices) {
@@ -223,6 +251,11 @@ void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int 
         inLinks[i] = graphGetInlinkIDsFromID(g, i, &numInLinks[i]);
         
         outLinks[i] = graphGetOutlinkIDsFromID(g, i, &numOutLinks[i]);
+        
+        // printf("outlinks from %d: \n", i);
+        // printIntArray(outLinks[i], numOutLinks[i]);
+        // printf("inlinks to %d: \n", i);
+        // printIntArray(inLinks[i], numInLinks[i]);
         
         i++;
         
@@ -232,39 +265,28 @@ void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int 
 
 double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
     
-    int i = 0;
+    int i = 0, summation = 0;
     
-    int summation = 0;
-    
+    // Loop over every node that v references to
     while (i < numOutLinks[v]) {
         
-        // outLinks[i] is set of pages that v references.
-        
-        int j = 0;
-        
-        while (j < numOutLinks[outLinks[v][i]]) {
-            
-            // Add the number of out links of every page that every page
-            // that refers to u refers to.
-            summation += numInLinks[j];
-            
-            j++;
-            
-        }
+        // outLinks[v][i] is the current page we are looking at that
+        // i outlinks to
+
+        // Sum the number of inlinks these pages have for the weight
+        summation += numInLinks[outLinks[v][i]];
         
         i++;
         
     }
     
-    if (summation == 0) {
-        
-        return numInLinks[u]/0.5;
-        
-    } else {
-        
-        return numInLinks[u]/(1.0*summation);
+    // printf("inLinks u : %d\n", numInLinks[u]);
+    // printf("summation : %d\n", summation);
+
+    // printf("Win[%d][%d] = %lf\n", v, u, numInLinks[u]/(1.0*summation));
     
-    }
+    // We return I_u/Sum(I_p), where p is a node that v references
+    return numInLinks[u]/(1.0*summation);
     
 }
 
@@ -275,37 +297,33 @@ double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLi
     
     int i = 0;
     
-    int summation = 0;
+    double summation = 0;
     
     while (i < numOutLinks[v]) {
         
         // outLinks[i] is set of pages that v references.
         
-        int j = 0;
+        //printf("a\n");
         
-        while (j < numOutLinks[outLinks[v][i]]) {
+        if (numOutLinks[outLinks[v][i]] == 0) {
             
-            // Add the number of out links of every page that every page
-            // that refers to u refers to.
-            summation += numOutLinks[j];
+            summation += 0.5;
             
-            j++;
-            
+        } else {
+        
+            summation += numOutLinks[outLinks[v][i]];
+        
         }
         
         i++;
         
     }
     
-    if (summation == 0) {
+    //printf("inLinks u : %d\n", numOutLinks[u]);
+    //printf("summation : %lf\n", summation);
         
-        return numOutLinks[u]/0.5;
-        
-    } else {
-        
-        return numOutLinks[u]/(1.0*summation);
-    
-    }
+    // printf("Wout[%d][%d] = %lf\n", v, u, (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation));
+    return (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation);
     
 }
 
