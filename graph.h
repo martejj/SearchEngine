@@ -2,7 +2,20 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#define NO_KEY      -1
+
 typedef struct _graph *Graph;
+typedef struct _list *List;
+typedef struct _vertex *Vertex;
+
+struct _graph {
+    char **names;
+    int maxVertices;
+    int numVertices;
+    int numEdges;
+    List *vertices;
+    
+};
 
 /*
  * Returns a new Graph pointer with memory allocated
@@ -17,42 +30,78 @@ Graph graphCreate(int size);
 void graphFree(Graph g);
 
 /*
- * Adds a place in the vertex adjacency list for this key
+ * Creates a vertex for this key and returns the id.
  */
 
-void graphAddVertex(Graph g, char *key);
+int graphAddVertex(Graph g, char *key);
+
+/*
+ * Returns TRUE if a key exists in names
+ */ 
+
+int graphKeyExists(Graph g, char *key);
 
 /*
  * Adds a directional connection from src to dst on the graph g
  * Assumes src exists
  */
 
-void graphConnectVertices(Graph g, char *src,  char *dst);
+void graphConnectVertices(Graph g, int src,  int dst);
 
 /*
- * Returns TRUE if there is an edge between the vertex with keys src and dst
+ * Returns TRUE if there is an edge between the vertex with ids src and dst
  */
 
-int graphConnectionExists(Graph g, char *src,  char *dst);
+int graphConnectionExists(Graph g, int src, int dst);
 
 /*
- * Returns a NULL terminated array of pointers to keys that point to the
+ * Returns TRUE if the id is being used
+ */
+
+int graphIDExists(Graph g, int id);
+
+/*
+ * Returns an int array of links from id num is size of array
  * given key
  */
 
-char **graphGetVerticesIn(Graph g, char *key);
+int *graphGetInlinkIDsFromID(Graph g, int id, int *num);
 
 /*
- * Returns TRUE if the graph contains the key key
+ * Returns an int array of links from id where num is number
  */
 
-int graphKeyExists(Graph g, char *key);
+int *graphGetOutlinkIDsFromID(Graph g, int id, int *num);
 
 /*
  * Prints the graph
  */
 
 void graphPrint(Graph g);
+
+/*
+ * Returns the assosiated id to a key
+ */
+
+int graphKeyToID(Graph g, char *key);
+
+/*
+ * Returns the assosiated key to an id.
+ */
+
+char *graphIDToKey(Graph g, int id);
+
+/*
+ * Returns TRUE if the given ID is valid
+ */
+
+int graphIsIDValid(Graph g, int id);
+
+/*
+ * Prints a NULL terminated char **
+ */
+
+void printTokens(char **tokens);
 
 /*
  * Simple set of tests to check that the graph is working

@@ -5,9 +5,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include "readData.h"
-#include "BTree.h"
-#include "list.h"
-#include "graph.h"
 
 static char *mystrdup(char *string);
 
@@ -63,10 +60,10 @@ List getListOfSec1FromFile(char *fileName) {
     char buffer[BUFSIZ] = {0};
         
     // Get rid of the #start section-1
-    fscanf(currentFile, "%s", buffer);
-    fscanf(currentFile, "%s", buffer);
+    fscanf(file, "%s", buffer);
+    fscanf(file, "%s", buffer);
             
-    while (fscanf(currentFile, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
+    while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
 
         listAddToTail(list, buffer);
         
@@ -92,29 +89,21 @@ List getListOfSec2FromFile(char *fileName) {
     
     List list = listCreate();
     
-    char buffer[BUFSIZ] = {0};
-    
-    FILE *file;
-	if ((file = fopen(urlFileName, "r")) == NULL) {
-		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-	    return NULL;
-	}
-
 	// Skip to #end Section-1
 
-	char buffer[BUFSIZE] = {0};
+	char buffer[BUFSIZ] = {0};
 
 	while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
         
     }
 
 	// Skip Section-1 #start Section-2
-	fscanf(ptr, "%*s %*s %*s %s", buf); // TODO correct?
+	fscanf(file, "%*s %*s %*s %s", buffer); // TODO correct?
 	
 	while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
 	
 	    // Add the trimmed word to the words list
-        listAddToTail(words, trim(buffer));
+        listAddToTail(list, trim(buffer));
         
     }
     
@@ -129,7 +118,7 @@ List getListOfSec2FromFile(char *fileName) {
  * tree with each node contains the word and all urls in which it is found.
  */
  
-BTreePtr getBTree(List urls) {
+/*BTreePtr getBTree(List urls) {
 
 	BTreePtr tree = NULL;
 	
@@ -159,7 +148,7 @@ BTreePtr getBTree(List urls) {
 	
 //	BTprint(tree);
 	return tree;
-}
+}*/ // May need to consider another structure
 
 // combining two strings together (from previous assignment)
 static char* concat2(const char* s1, const char* s2) {

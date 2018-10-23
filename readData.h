@@ -5,19 +5,34 @@
 #define BLANK_TOKENS " \t\r\n\v\f"
 #define COMMA_BLANK_TOKENS " ,\t\r\n\v\f"
 
+#include "list.h"
+#include "graph.h"
+
 /*
  * Returns a list of every word in the file (every section of text
  * separated by a space)
  */
  
-List getListOfWords(char *fileName);
+List getListOfWordsFromFile(char *fileName);
+
+/*
+ * Returns a list of every word in section one of the file
+ */
+ 
+List getListOfSec1FromFile(char *fileName);
+
+/*
+ * Returns a list of every word in section two of the file
+ */
+ 
+List getListOfSec2FromFile(char *fileName);
 
 /*
  * Read all url files from 'urls' list parameter. Construct a binary
  * tree with each node contains the word and all urls in which it is found.
  */
  
-BTreePtr getBTree(List urls);
+// BTreePtr getBTree(List urls);
 
 /*
  * Utility function. It does:

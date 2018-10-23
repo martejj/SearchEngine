@@ -7,13 +7,11 @@
 #define TRUE    1
 #define FALSE   0
 
-typedef struct _list *List;
-typedef struct _vertex *Vertex;
-
 // A  list contains all out links of the key
+// use adjacency list representation as this is a sparce graph
 struct _list {
     
-    char *key;
+    int id;
     int numVertices;
     Vertex head;
     Vertex last;
@@ -22,31 +20,24 @@ struct _list {
 
 struct _vertex {
     
-    char *key;
+    int id;
     Vertex next;
     
 };
-
-struct _graph {
-    
-    int maxVertices;
-    int numVertices;
-    int numEdges;
-    List *vertices;
-    
-};
+ 
+static Vertex newVertex(int id);
+static List newVertexList(int id);
 
 static void listFree(List list);
 
-static Vertex newVertex(char *key);
-static List newVertexList(char *key);
-
 static void appendVertex(List list, Vertex vertex);
-static List getAdjacencyListFromKey(Graph g, char *key);
 
-static int listContains(List list, char *key);
+static int getNumVerticesIn(Graph g, int id);
 
-// As strdup is not available in -std=c11
+static int listContains(List list, int id);
+
+void printTokens(char **tokens);
+
 static char *mystrdup(char *string);
 
 /*
@@ -64,32 +55,41 @@ Graph graphCreate(int size) {
     // Sizeof list (the pointer) as it is an array of pointers
     g->vertices = calloc(size, sizeof(List));
     
+    g->names = calloc(size, sizeof(char *));
+    
     assert(g->vertices != NULL);
     
     return g;
     
 }
 
-// Takes in a stack key and allocates and returns a vertex w/ heap key
-static Vertex newVertex(char *key) {
+/*
+ * Returns a new vertex with the id given
+ */
+ 
+static Vertex newVertex(int id) {
     
     Vertex new = calloc(1, sizeof(*new));
     
     assert(new != NULL);
     
-    new->key = mystrdup(key);
+    new->id = id;
     
     return new;
     
 }
 
-static List newVertexList(char *key) {
+/*
+ * Returns a new list with the id given
+ */
+
+static List newVertexList(int id) {
     
     List new = calloc(1, sizeof(*new));
     
     assert(new != NULL);
     
-    new->key = mystrdup(key);
+    new->id = id;
     
     return new;
     
@@ -113,14 +113,18 @@ void graphFree(Graph g) {
     }
     
     free(g->vertices);
+    free(g->names);
     free(g);
         
 }
 
+/*
+ * Frees an entire list
+ */
+
 static void listFree(List list) {
 
     assert(list != NULL);
-    assert(list->key != NULL);
     
     Vertex curr = list->head;
     Vertex prev = NULL;
@@ -130,31 +134,53 @@ static void listFree(List list) {
         prev = curr;
         curr = curr->next;
         
-        free(prev->key);
         free(prev);
         
     }
     
-    free(list->key);
     free(list);
     
 }
 
 /*
- * Adds a place in the vertex adjacency list for this key
+ * Creates a vertex for this key and returns the id.
  */
 
-void graphAddVertex(Graph g, char *key) {
+int graphAddVertex(Graph g, char *key) {
     
     assert(g != NULL);
     assert(key != NULL);
     
     // So that we dont have two entries for the same key
-    if (graphKeyExists(g, key)) return;
+    if (graphKeyExists(g, key)) return -1;
     
-    g->vertices[g->numVertices] = newVertexList(key);
+    g->names[g->numVertices] = mystrdup(key);
+    
+    g->vertices[g->numVertices] = newVertexList(g->numVertices);
     g->numVertices++;
+    
+    return g->numVertices - 1; 
 
+}
+
+/*
+ * Returns TRUE if a key exists in names
+ */ 
+
+int graphKeyExists(Graph g, char *key) {
+    
+    int i = 0;
+    
+    while (i < g->numVertices) {
+        
+        if (g->names[i] != NULL && strcmp(g->names[i], key) == 0) return TRUE;
+        
+        i++;
+        
+    }
+    
+    return FALSE;
+    
 }
 
 /*
@@ -162,13 +188,15 @@ void graphAddVertex(Graph g, char *key) {
  * Assumes src exists
  */
 
-void graphConnectVertices(Graph g, char *src,  char *dst) {
+void graphConnectVertices(Graph g, int src,  int dst) {
     
-    assert(src != NULL);
-    assert(dst != NULL);
     assert(g != NULL);
+    
+    if (src == dst) return;
         
-    List list = getAdjacencyListFromKey(g, src);
+    if (!graphIsIDValid(g, src) || !graphIsIDValid(g, dst)) return;
+        
+    List list = g->vertices[src];
         
     assert(list != NULL); // TODO add it?
     
@@ -209,22 +237,24 @@ static void appendVertex(List list, Vertex vertex) {
 }
 
 /*
- * Returns TRUE if there is an edge between the vertex with keys src and dst
+ * Returns TRUE if there is an edge between the vertex with ids src and dst
  */
 
-int graphConnectionExists(Graph g, char *src,  char *dst) {
+int graphConnectionExists(Graph g, int src, int dst) {
     
     assert(g != NULL);
     
+    if (!graphIsIDValid(g, src) || !graphIsIDValid(g, dst)) return FALSE;
+    
     // Get the adjacency list of src and see if dst exists in it
     
-    List list = getAdjacencyListFromKey(g, src);
+    List list = g->vertices[src];
     
     Vertex curr = list->head;
     
     while (curr != NULL) {
         
-        if (strcmp(curr->key, dst) == 0) return TRUE;
+        if (curr->id == dst) return TRUE;
         
         curr = curr->next;
         
@@ -235,11 +265,11 @@ int graphConnectionExists(Graph g, char *src,  char *dst) {
 }
 
 /*
- * Returns TRUE if the given List contains the key (e.g. list->key is 
- * connected to key)
+ * Returns TRUE if the given List contains the id (e.g. list->id is 
+ * connected to id)
  */
 
-static int listContains(List list, char *key) {
+static int listContains(List list, int id) {
     
     assert(list != NULL);
     
@@ -248,7 +278,7 @@ static int listContains(List list, char *key) {
     // Loop over the given list and see if key is contained
     while (curr != NULL) {
         
-        if (strcmp(curr->key, key) == 0) return TRUE;
+        if (curr->id == id) return TRUE;
         
         curr = curr->next;
         
@@ -259,35 +289,24 @@ static int listContains(List list, char *key) {
 }
 
 /*
- * Returns TRUE if the graph contains the key key
+ * Returns TRUE if the id is being used
  */
 
-int graphKeyExists(Graph g, char *key) {
+int graphIDExists(Graph g, int id) {
     
     assert(g != NULL);
-    assert(key != NULL);
     
-    int i = 0;
-    
-    // Loop over vertices list and see if it is contained
-    while (i < g->numVertices) {
-        
-        // If it isnt null and the keys are the same then it exists
-        if (g->vertices[i] != NULL && strcmp(key, g->vertices[i]->key) == 0) return TRUE;
-        
-        i++;
-        
-    }
+    if (graphIsIDValid(g, id) && g->names[id] != NULL) return TRUE;
     
     return FALSE;
     
 }
 
 /*
- * Returns the number of vertices that connect to a key
- */
+ * Returns the number of vertices that connect to an id
+ */ // TODO
 
-static int getNumVerticesIn(Graph g, char *key) {
+static int getNumVerticesIn(Graph g, int id) {
     
     int numVertices = 0;
     
@@ -303,7 +322,7 @@ static int getNumVerticesIn(Graph g, char *key) {
         
         while (curr != NULL && !found) {
             
-            if (strcmp(curr->key, key) == 0) {
+            if (curr->id == id) {
                 
                 numVertices++;
                 
@@ -324,18 +343,16 @@ static int getNumVerticesIn(Graph g, char *key) {
 }
 
 /*
- * Returns a NULL terminated array of pointers to keys that point to the
- * given key
+ * Returns a -1 terminated array of ints (ids) that point into an id
  */
 
-char **graphGetVerticesIn(Graph g, char *key) {
+int *graphGetInlinkIDsFromID(Graph g, int id, int *num) {
 
-    int numVertices = getNumVerticesIn(g, key);
+    int numVertices = getNumVerticesIn(g, id);
     
-    // + 1 so we can add the NULL to the end
-    char **tokens = calloc(numVertices + 1, sizeof(char *));
+    int *retArray = calloc(numVertices, sizeof(int));
     
-    int currToken = 0;
+    int currIndex = 0;
     
     int i = 0;
     
@@ -351,16 +368,13 @@ char **graphGetVerticesIn(Graph g, char *key) {
         // Loop over every vertex in the adjacency list
         while (curr != NULL && !found) {
             
-            if (strcmp(curr->key, key) == 0) {
+            if (curr->id == id) {
                 
-                // TODO strdup or use same pointer?
-                // tokens[currToken] = mystrdup(g->vertices[i]->key);
-                // So we dont worry about freeing strings in tokens
-                tokens[currToken] = g->vertices[i]->key;
+                retArray[currIndex] = g->vertices[i]->id;
                 
                 found = TRUE;
                 
-                currToken++;
+                currIndex++;
                 
             }
             
@@ -372,34 +386,41 @@ char **graphGetVerticesIn(Graph g, char *key) {
         
     }
     
-    tokens[numVertices + 1] = NULL;
+    *num = numVertices;
     
-    return tokens;
+    return retArray;
     
 }
 
 /*
- * Returns the adjacency list of a given Key
+ * Returns a -1-terminated int array of links from id
  */
 
-static List getAdjacencyListFromKey(Graph g, char *key) {
+int *graphGetOutlinkIDsFromID(Graph g, int id, int *num) {
     
     assert(g != NULL);
-    assert(key != NULL);
+    
+    if (!graphIsIDValid(g, id)) return NULL;
     
     int i = 0;
     
-    while (i < g->numVertices) {
+    int *retArray = calloc(g->vertices[id]->numVertices, sizeof(int));
+    
+    Vertex curr = g->vertices[id]->head;
+    
+    while (curr != NULL) {
         
-        // If it isnt null and the keys are the same then it is the key
-        if (g->vertices[i] != NULL && strcmp(key, g->vertices[i]->key) == 0) 
-            return g->vertices[i];
+        retArray[i] = curr->id;
+        
+        curr = curr->next;
         
         i++;
         
-    }
+    } 
     
-    return NULL;
+    *num = g->vertices[id]->numVertices;
+    
+    return retArray;
     
 }
 
@@ -416,14 +437,14 @@ void graphPrint(Graph g) {
     // Loop over every vertex entry
     while (i < g->numVertices && g->vertices[i] != NULL) {
         
-        printf("%s", g->vertices[i]->key);
+        printf("%s", g->names[g->vertices[i]->id]);
         
         Vertex curr = g->vertices[i]->head;
         
         // Then loop over every adjacency that it has and print them
         while (curr != NULL) {
             
-            printf(" -> %s", curr->key);
+            printf(" -> %s", g->names[curr->id]);
             
             curr = curr->next;
             
@@ -442,6 +463,55 @@ void graphPrint(Graph g) {
     printf("X\n");
     
 }
+
+/*
+ * Returns the assosiated id to a key
+ */
+
+int graphKeyToID(Graph g, char *key) {
+    
+    int i = 0;
+    
+    while (i < g->numVertices) {
+        
+        if (g->names[i] != NULL && strcmp(g->names[i], key) == 0)
+            return i;
+        
+        i++;
+        
+    }
+    
+    return NO_KEY;
+    
+}
+
+/*
+ * Returns the assosiated key to an id.
+ */
+
+char *graphIDToKey(Graph g, int id) {
+    
+    if (!graphIsIDValid(g, id)) return NULL;
+    
+    return g->names[id];
+    
+}
+
+/*
+ * Returns TRUE if the given ID is valid
+ */
+
+int graphIsIDValid(Graph g, int id) {
+    
+    if (id >= 0 && id < g->numVertices) return TRUE;
+    
+    return FALSE;
+    
+}
+
+/*
+ * Prints a NULL terminated char **
+ */
 
 void printTokens(char **tokens) {
     
@@ -510,45 +580,39 @@ void graphTest() {
     
     printf("Testing connecting vertices of graph\n");
     
-    graphConnectVertices(g, "a", "b");
-    assert(graphConnectionExists(g, "a", "b"));
+    graphConnectVertices(g, graphKeyToID(g, "a"), graphKeyToID(g, "b"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "a"), graphKeyToID(g, "b")));
     
-    graphConnectVertices(g, "a", "c");
-    assert(graphConnectionExists(g, "a", "c"));
+    graphConnectVertices(g, graphKeyToID(g, "a"), graphKeyToID(g, "c"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "a"), graphKeyToID(g, "c")));
     
-    graphConnectVertices(g, "a", "d");
-    assert(graphConnectionExists(g, "a", "d"));
+    graphConnectVertices(g, graphKeyToID(g, "a"), graphKeyToID(g, "d"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "a"), graphKeyToID(g, "d")));
     
-    graphConnectVertices(g, "d", "b");
-    assert(graphConnectionExists(g, "d", "b"));
+    graphConnectVertices(g, graphKeyToID(g, "d"), graphKeyToID(g, "b"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "d"), graphKeyToID(g, "b")));
 
-    graphConnectVertices(g, "d", "a");
-    assert(graphConnectionExists(g, "d", "b"));
+    graphConnectVertices(g, graphKeyToID(g, "d"), graphKeyToID(g, "a"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "d"), graphKeyToID(g, "b")));
     
-    graphConnectVertices(g, "e", "c");
-    assert(graphConnectionExists(g, "e", "c"));
+    graphConnectVertices(g, graphKeyToID(g, "e"), graphKeyToID(g, "c"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "e"), graphKeyToID(g, "c")));
     
     printf("Testing adding two edges between same vertices\n");
     
-    graphConnectVertices(g, "d", "c");
-    assert(graphConnectionExists(g, "d", "c"));
-    graphConnectVertices(g, "d", "c");
+    graphConnectVertices(g, graphKeyToID(g, "d"), graphKeyToID(g, "c"));
+    assert(graphConnectionExists(g, graphKeyToID(g, "d"), graphKeyToID(g, "c")));
+    graphConnectVertices(g, graphKeyToID(g, "d"), graphKeyToID(g, "c"));
 
     printf("Testing self connections\n");
     
-    graphConnectVertices(g, "d", "d");
-    assert(graphConnectionExists(g, "d", "d"));
-    graphConnectVertices(g, "d", "d");   
+    graphConnectVertices(g, graphKeyToID(g, "d"), graphKeyToID(g, "d"));
+    assert(!graphConnectionExists(g, graphKeyToID(g, "d"), graphKeyToID(g, "d")));
     
-    assert(getNumVerticesIn(g, "e") == 0);
-    assert(getNumVerticesIn(g, "d") == 2);
-    assert(getNumVerticesIn(g, "a") == 1);
-    assert(getNumVerticesIn(g, "z") == 0);
-    
-    printTokens(graphGetVerticesIn(g, "e"));
-    printTokens(graphGetVerticesIn(g, "d"));
-    printTokens(graphGetVerticesIn(g, "a"));
-    printTokens(graphGetVerticesIn(g, "z"));
+    assert(getNumVerticesIn(g, graphKeyToID(g, "e")) == 0);
+    assert(getNumVerticesIn(g, graphKeyToID(g, "d")) == 1);
+    assert(getNumVerticesIn(g, graphKeyToID(g, "a")) == 1);
+    assert(getNumVerticesIn(g, graphKeyToID(g, "z")) == 0);
     
     graphPrint(g);
     
