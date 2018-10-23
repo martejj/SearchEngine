@@ -61,6 +61,12 @@ int graphConnectionExists(Graph g, int src, int dst);
 int graphIDExists(Graph g, int id);
 
 /*
+ * Returns the number of outlinks from a vertex with id id
+ */
+
+int graphGetNumOutLinks(Graph g, int id);
+
+/*
  * Returns an int array of links from id num is size of array
  * given key
  */

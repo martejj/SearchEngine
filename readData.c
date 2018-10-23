@@ -32,12 +32,15 @@ List getListOfWordsFromFile(char *fileName) {
         // Add the url to the buffer
         listAddToTail(list, buffer);
         
-        // Effectively reseting the buffer
-        buffer[0] = '\0';
-        
     }
     
     fclose(file);
+    
+    // To stop complaints
+    
+    free(concat2("ds", "ds"));
+    
+    free(mystrdup("sadsa"));
     
     return list;
     

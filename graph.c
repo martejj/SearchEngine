@@ -184,6 +184,16 @@ int graphKeyExists(Graph g, char *key) {
 }
 
 /*
+ * Returns the number of outlinks from a vertex with id id
+ */
+
+int graphGetNumOutLinks(Graph g, int id) {
+    
+    return g->vertices[id]->numVertices;
+    
+}
+
+/*
  * Adds a directional connection from src to dst on the graph g
  * Assumes src exists
  */
