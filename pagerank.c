@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
+#include <errno.h>
 #include "graph.h"
 #include "list.h"
 #include "readData.h"
@@ -19,6 +20,7 @@ void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int 
 double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks);
 double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks);
 
+double *calculatePagerank(Graph g, double damp, double diffPR, int maxIters);
 
 int main(int argc, char *argv[]) {
     
@@ -41,6 +43,7 @@ int main(int argc, char *argv[]) {
         sscanf(argv[1], "%lf", &damp);
         sscanf(argv[2], "%lf", &diffPR);
         maxIters = atoi(argv[3]);
+        dir = NULL;
     
     } else {
         
@@ -51,9 +54,82 @@ int main(int argc, char *argv[]) {
     
     Graph g = createURLGraph(dir);
     
-    // Initialising data
+    double *PR = calculatePagerank(g, damp, diffPR, maxIters);
     
-    double currPR[g->numVertices];
+    char outFileName[BUFSIZ] = {0};
+
+
+    if (dir == NULL) {
+        
+        strcat(outFileName, "pagerank.txt");
+        
+    } else {
+        
+        strcat(outFileName, dir);
+        strcat(outFileName, "/");
+        strcat(outFileName, "pagerank.txt");
+        
+    }
+    
+    FILE *outFile;
+    
+    if ((outFile = fopen(outFileName, "w")) == NULL) {
+		fprintf(stderr, "Error opening file %s : %s\n", outFileName, strerror(errno));
+		exit(1);
+	}
+    
+    // Crude method for printing to file output in desc order
+    
+    int i = 0;
+    
+    while (i < g->numVertices) {
+        
+        int j = 0;
+        
+        int currMaxIndex = 0;
+        
+        while (j < g->numVertices) {
+            
+            if (PR[j] > PR[currMaxIndex]) {
+                
+                currMaxIndex = j;
+                
+            }
+            
+            j++;
+            
+        }
+        
+        fprintf(outFile, "%s, %d, %.7f\n",
+            graphIDToKey(g, currMaxIndex),
+            graphGetNumOutLinks(g, currMaxIndex),
+            PR[currMaxIndex]);
+        
+        i++;
+        
+        PR[currMaxIndex] = 0.0;
+        
+    }
+    
+    
+    fclose(outFile);
+    
+    graphFree(g);
+    
+    free(PR);
+    
+}
+
+/*
+ * Returns an array of doubles which are the pageranks of pages
+ * correspondant to their indices
+ */
+
+double *calculatePagerank(Graph g, double damp, double diffPR, int maxIters) {
+    
+    // Initialise linking data
+    
+    double *currPR = calloc(g->numVertices, sizeof(double));
     double nextPR[g->numVertices];
     
     int numInLinks[g->numVertices];
@@ -128,20 +204,13 @@ int main(int argc, char *argv[]) {
     
     }
     
-    printDoubleArray(currPR, g->numVertices);
-    
-    char outName[BUFSIZ] = {0};
-    
-    strcat(outName, dir);
-    strcat(outName, "/pagerank.txt");
-    
-    // FILE *file = fopen(outName, "r");
-    
-    // fclose(file);
-    
-    graphFree(g);
+    return currPR;
     
 }
+
+/*
+ * Returns the difference between the two double arrays
+ */
 
 double calculateDiff(double *nextPR, double *currPR, int n) {
     
@@ -160,6 +229,10 @@ double calculateDiff(double *nextPR, double *currPR, int n) {
     return diff;
     
 }
+
+/*
+ * Returns a Graph struct populated with the data from dir
+ */
 
 Graph createURLGraph(char *dir) {
 
@@ -263,6 +336,10 @@ void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int 
     
 }
 
+/*
+ * Returns the weighted input from v to u 
+ */
+
 double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
     
     int i = 0, summation = 0;
@@ -290,6 +367,10 @@ double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLin
     
 }
 
+/*
+ * Returns the weighted output from v to u 
+ */
+
 double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
     
     // calculated by W = O_u/(sum(0 .. R(v), O_p)
@@ -305,6 +386,7 @@ double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLi
         
         //printf("a\n");
         
+        // As it must return 0.5 if there are no outlinks
         if (numOutLinks[outLinks[v][i]] == 0) {
             
             summation += 0.5;
@@ -323,9 +405,14 @@ double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLi
     //printf("summation : %lf\n", summation);
         
     // printf("Wout[%d][%d] = %lf\n", v, u, (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation));
+    // Again it must return 0.5 if there are no outlinks
     return (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation);
     
 }
+
+/*
+ * For debugging purposes, prints an array of doubles
+ */
 
 void printDoubleArray(double *array, int num) {
     
@@ -342,6 +429,10 @@ void printDoubleArray(double *array, int num) {
     printf("\n");
     
 }
+
+/*
+ * For debugging purposes, prints an array of ints
+ */
 
 void printIntArray(int *array, int num) {
     
