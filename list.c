@@ -178,6 +178,29 @@ List listSortedUnion(List list1, List list2) {
 }
 
 /*
+ * Fills list1 with the union of the two lists
+ * Does NOT assume sorted.
+ */
+
+void listUnion(List list1, List list2) {
+        
+    ListNode curr2 = list2->head;
+    
+    while (curr2 != NULL) {
+        
+        if (!listContains(list1, curr2->data)) {
+            
+            listAddInOrder(list1, curr2->data);
+            
+        }
+        
+        curr2 = curr2->next;
+        
+    }
+    
+}
+
+/*
  * Returns a list containing the intersection of the two lists
  * Assumes sorted.
  */
@@ -302,6 +325,33 @@ int listContains(List list, char *data) {
     }
     
     return FALSE;
+    
+}
+
+/*
+ * Returns the index of the node 
+ * if it is not contained it returns -1
+ */
+
+int listIndexOf(List list, char *data) {
+    
+    assert(list != NULL);
+    assert(data != NULL);
+    
+    ListNode curr = list->head;
+    
+    int i = 0;
+    
+    while (curr != NULL) {
+    
+        if (strcmp(curr->data, data) == 0) return i;
+    
+        curr = curr->next;
+        i++;
+        
+    }
+    
+    return -1;
     
 }
 
