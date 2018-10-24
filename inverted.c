@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 #include "readData.h"
+#include "BTree.h"
+#include "SortedList.h"
+#include "Queue.h"
 
 /*
  * This out put a binary tree to a file in desired format as specified
@@ -36,19 +40,45 @@ void printSLtoFile(SortedListPtr head, FILE *fptr);
 int main(int argc, char *argv[]) {
 
     List list = NULL;
+    
+    char *dir = NULL;
+    
     //read collection file to get all url data file.
     if (argc >= 2) {
-        list = getListOfWords(argv[1]);
+    
+        char fileName[BUFSIZ] = {0};
+        strcat(fileName, argv[1]);
+        strcat(fileName, "/collection.txt");
+        list = getListOfWordsFromFile(fileName);
+        
+        dir = argv[1];
+        
     } else {
-        list = getListOfWords("collection.txt");
+    
+        list = getListOfWordsFromFile("collection.txt");
     }
     
     //read each url file and build a binary tree.
-    BTreePtr tree = getBTree(list);
+    BTreePtr tree = getBTree(list, dir);
+    
+    // For debugging
+    
+    char fileName[BUFSIZ] = {0};
+    
+    if (dir == NULL) {
+        
+        strcat(fileName, "invertedIndex.txt");
+        
+    } else {
+        
+        strcat(fileName, dir);
+        strcat(fileName, "/invertedIndex.txt");
+        
+    }
     
     FILE *file;
     
-    if ((file = fopen("invertedIndex.txt", "w")) == NULL) {
+    if ((file = fopen(fileName, "w")) == NULL) {
         fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
         exit(1);
     }
@@ -56,6 +86,7 @@ int main(int argc, char *argv[]) {
     printBTtoFile(tree, file);
     fclose(file);
     BTfree(tree);
+    listFree(list);
     return 0;
 }
 
@@ -71,5 +102,17 @@ void printBTtoFile(BTreePtr root, FILE *fptr) {
     printBTtoFile(root->right, fptr);
 }
 
+/*
+ * This out put a sorted list to a file in desired format as specified
+ * in assignment requirement.
+ */
+void printSLtoFile(SortedListPtr head, FILE *fptr) {
+    SortedListPtr current = head;
+    while (current != NULL) {
+        fprintf(fptr,"%s ", current->val);
+        current = current->next;
+    }
+    fprintf(fptr,"%s", "\n");
+}
 
 

@@ -48,6 +48,13 @@ void listAddInOrder(List list, char *data);
 List listSortedUnion(List list1, List list2);
 
 /*
+ * Returns a list containing the intersection of the two lists
+ * Assumes sorted.
+ */
+
+List listSortedIntersection(List list1, List list2);
+
+/*
  * Allocates a new ListNode 
  */
 

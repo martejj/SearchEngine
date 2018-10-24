@@ -178,6 +178,47 @@ List listSortedUnion(List list1, List list2) {
 }
 
 /*
+ * Returns a list containing the intersection of the two lists
+ * Assumes sorted.
+ */
+
+List listSortedIntersection(List list1, List list2) {
+
+    List intersection = listCreate();
+    
+    ListNode curr1 = list1->head;
+    ListNode curr2 = list2->head;
+    
+    while (curr1 != NULL && curr2 != NULL) {
+            
+        // Otherwise we need to find which is smaller
+        int cmp = strcmp(curr1->data, curr2->data);
+        
+        if (cmp == 0) {
+            
+            listAddToTail(intersection, curr1->data);
+                            
+            curr1 = curr1->next;
+            curr2 = curr2->next;
+            
+        } else if (cmp < 0) {
+        
+            curr1 = curr1->next;
+        
+        } else {
+            
+            curr2 = curr2->next;
+            
+        }
+    
+    }
+    
+    return intersection;
+
+}
+
+
+/*
  * Allocates a new ListNode 
  */
 
@@ -349,10 +390,15 @@ void listTest() {
     listAddInOrder(list3, "5");
     assert(listContains(list3, "5"));
     
+    listAddInOrder(list3, "6");
+    assert(listContains(list3, "6"));
+    
     listAddInOrder(list3, "7");
     assert(listContains(list3, "7"));
     
-    List intersect = listSortedUnion(list2, list3);
+    List unionList = listSortedUnion(list2, list3);
+    
+    List intersection = listSortedIntersection(list2, list3);
     
     printf("Union of: \n");
     listPrint(list2, stdout);
@@ -361,7 +407,15 @@ void listTest() {
     listPrint(list3, stdout);
     
     printf("is: \n");
-    listPrint(intersect, stdout);
+    listPrint(unionList, stdout);
     
+    printf("Intersection of: \n");
+    listPrint(list2, stdout);
+    
+    printf("And: \n");
+    listPrint(list3, stdout);
+    
+    printf("is: \n");
+    listPrint(intersection, stdout);
 }
 
