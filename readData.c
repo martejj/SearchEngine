@@ -28,22 +28,17 @@ List getListOfWordsFromFile(char *fileName) {
     char buffer[BUFSIZ] = {0};
     
     while(fscanf(file, "%s", buffer) == 1) {
-        
         // Add the url to the buffer
         listAddToTail(list, buffer);
-        
     }
     
     fclose(file);
     
     // To stop complaints
-    
     free(concat2("ds", "ds"));
-    
     free(mystrdup("sadsa"));
     
     return list;
-    
 }
 
 /*

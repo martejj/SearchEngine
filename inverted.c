@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     
     printBTtoFile(tree, file);
     fclose(file);
-    BTfree(tree);
+    BTfree(free);
     return 0;
 }
 
