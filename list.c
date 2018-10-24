@@ -71,6 +71,113 @@ void listAddToTail(List list, char *data) {
 }
 
 /*
+ * Allocates a new node with data data and appends in order in the list
+ */
+
+void listAddInOrder(List list, char *data) {
+    
+    assert(list != NULL);
+    assert(data != NULL);
+    
+    ListNode newNode = listNodeCreate();
+    
+    newNode->data = mystrdup(data);
+    newNode->next = NULL;
+    
+    list->nNodes++;
+    
+    if (list->head == NULL || list->tail == NULL) {
+        
+        list->head = newNode;
+        list->tail = newNode;
+        
+    } else {
+        
+        ListNode curr = list->head;
+        ListNode prev = NULL;
+        
+        while (curr != NULL && strcmp(data, curr->data) >= 0) {
+            
+            prev = curr;
+            curr = curr->next;
+            
+        }
+        
+        if (prev != NULL) {
+            
+            prev->next = newNode;
+            newNode->next = curr;
+            
+        } else {
+            
+            newNode->next = list->head;
+            list->head = newNode;
+            
+        }
+    
+    }
+    
+}
+
+/*
+ * Returns a list containing the union of the two lists
+ * Assumes sorted.
+ */
+
+List listSortedUnion(List list1, List list2) {
+    
+    List unionList = listCreate();
+    
+    ListNode curr1 = list1->head;
+    ListNode curr2 = list2->head;
+    
+    while (curr1 != NULL || curr2 != NULL) {
+        
+        // To deal when one list is longer than the other.
+        if (curr1 == NULL) {
+            
+            listAddToTail(unionList, curr2->data);
+            curr2 = curr2->next;
+            
+        } else if (curr2 == NULL) {
+            
+            listAddToTail(unionList, curr1->data);
+            curr1 = curr1->next;
+            
+        } else {
+            
+            // Otherwise we need to find which is smaller
+            int cmp = strcmp(curr1->data, curr2->data);
+            
+            if (cmp == 0) {
+                
+                listAddToTail(unionList, curr1->data);
+                listAddToTail(unionList, curr2->data);
+                
+                curr1 = curr1->next;
+                curr2 = curr2->next;
+                
+            } else if (cmp < 0) {
+            
+                listAddToTail(unionList, curr1->data);
+                curr1 = curr1->next;
+            
+            } else {
+                
+                listAddToTail(unionList, curr2->data);
+                curr2 = curr2->next;
+                
+            }
+        
+        }
+        
+    }
+    
+    return unionList;
+    
+}
+
+/*
  * Allocates a new ListNode 
  */
 
@@ -198,6 +305,63 @@ static char *mystrdup(char *string) {
     strcat(retString, string);
     
     return retString;
+    
+}
+
+/*
+ * Basic tests for a list
+ */
+
+void listTest() {
+    
+    List list1 = listCreate();
+    
+    listAddInOrder(list1, "1");
+    assert(listContains(list1, "1"));
+    
+    listAddToHead(list1, "2");
+    assert(listContains(list1, "2"));
+    
+    listFree(list1);
+    
+    List list2 = listCreate();
+    
+    listAddInOrder(list2, "1");
+    assert(listContains(list2, "1"));
+    
+    listAddInOrder(list2, "3");
+    assert(listContains(list2, "3"));
+    
+    listAddInOrder(list2, "6");
+    assert(listContains(list2, "6"));
+    
+    List list3 = listCreate();
+    
+    listAddInOrder(list3, "2");
+    assert(listContains(list3, "2"));
+    
+    listAddInOrder(list3, "3");
+    assert(listContains(list3, "3"));
+    
+    listAddInOrder(list3, "4");
+    assert(listContains(list3, "4"));
+    
+    listAddInOrder(list3, "5");
+    assert(listContains(list3, "5"));
+    
+    listAddInOrder(list3, "7");
+    assert(listContains(list3, "7"));
+    
+    List intersect = listSortedUnion(list2, list3);
+    
+    printf("Union of: \n");
+    listPrint(list2, stdout);
+    
+    printf("And: \n");
+    listPrint(list3, stdout);
+    
+    printf("is: \n");
+    listPrint(intersect, stdout);
     
 }
 

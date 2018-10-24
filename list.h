@@ -35,6 +35,19 @@ void listAddToHead(List list, char *data);
 void listAddToTail(List list, char *data);
 
 /*
+ * Allocates a new node with data data and appends in order in the list
+ */
+
+void listAddInOrder(List list, char *data);
+
+/*
+ * Returns a list containing the union of the two lists
+ * Assumes sorted.
+ */
+
+List listSortedUnion(List list1, List list2);
+
+/*
  * Allocates a new ListNode 
  */
 
@@ -69,5 +82,11 @@ int listContains(List list, char *data);
  */
 
 void listPrint(List list, FILE *file);
+
+/*
+ * Basic tests for a list
+ */
+
+void listTest();
 
 #endif
