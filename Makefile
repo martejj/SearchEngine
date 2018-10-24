@@ -1,4 +1,4 @@
-DEPS=graph.c list.c readData.c
+DEPS=graph.c list.c readData.c BTree.c Item.c SortedList.c Queue.c 
 CFLAGS=-Werror -Wall -lm -std=c11 -gdwarf-2 -ggdb3
 
 pagerank :

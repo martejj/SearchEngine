@@ -7,6 +7,7 @@
 
 #include "list.h"
 #include "graph.h"
+#include "BTree.h"
 
 /*
  * Returns a list of every word in the file (every section of text
@@ -32,7 +33,7 @@ List getListOfSec2FromFile(char *fileName);
  * tree with each node contains the word and all urls in which it is found.
  */
  
-// BTreePtr getBTree(List urls);
+BTreePtr getBTree(List urls, char *dir);
 
 /*
  * Utility function. It does:

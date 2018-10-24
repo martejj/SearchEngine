@@ -116,7 +116,7 @@ List getListOfSec2FromFile(char *fileName) {
  * tree with each node contains the word and all urls in which it is found.
  */
  
-/*BTreePtr getBTree(List urls) {
+BTreePtr getBTree(List urls, char *dir) {
 
 	BTreePtr tree = NULL;
 	
@@ -124,8 +124,21 @@ List getListOfSec2FromFile(char *fileName) {
 	
 	while (currUrl != NULL) {
 	    
-		char *url = urls->val;
-		char *urlFileName = concat2(url, ".txt");
+	    char urlFileName[BUFSIZ] = {0};
+	    
+	    if (dir == NULL) {
+            
+            strcat(urlFileName, currUrl->data);
+            strcat(urlFileName, ".txt");
+            
+        } else {
+            
+            strcat(urlFileName, dir);
+            strcat(urlFileName, "/");
+            strcat(urlFileName, currUrl->data);
+            strcat(urlFileName, ".txt");
+            
+        }
 
 		List words = getListOfSec2FromFile(urlFileName);
 		
@@ -146,7 +159,8 @@ List getListOfSec2FromFile(char *fileName) {
 	
 //	BTprint(tree);
 	return tree;
-}*/ // May need to consider another structure
+}
+// May need to consider another structure
 
 // combining two strings together (from previous assignment)
 static char* concat2(const char* s1, const char* s2) {

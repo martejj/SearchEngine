@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "Item.h"
 #include "SortedList.h"
+#include "Queue.h"
 
 void SLprint(SortedListPtr head) {
 	SortedListPtr current = head;

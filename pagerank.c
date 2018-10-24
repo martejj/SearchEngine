@@ -61,13 +61,13 @@ int main(int argc, char *argv[]) {
 
     if (dir == NULL) {
         
-        strcat(outFileName, "pagerank.txt");
+        strcat(outFileName, "pagerankList.txt");
         
     } else {
         
         strcat(outFileName, dir);
         strcat(outFileName, "/");
-        strcat(outFileName, "pagerank.txt");
+        strcat(outFileName, "pagerankList.txt");
         
     }
     
