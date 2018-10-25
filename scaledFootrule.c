@@ -1,7 +1,12 @@
 /*
  * scaledFootrule.c
  * Github: https://github.com/martejj/SearchEngine/scaledFootrule.c
- * 
+ * Author: Harrison Steyn
+ * Year: 2018
+ * A implementation of Scaled Footrule Rank Aggregation
+ * From Specification: 
+ * Combines search results (ranks) from multiple sources (say from tf-idf
+ * and pagerank) using "Scaled Footrule Rank Aggregation".
  */
 
 #include <stdio.h>
@@ -66,26 +71,32 @@ int main(int argc, char *argv[]) {
     permute(guesses, 0, allUrls->nNodes - 1,
                 allUrls, fileText, numFiles, &bestGuessValue, bestGuess);
     
-    printf("%lf\n", bestGuessValue);
+    printf("%.6f\n", bestGuessValue);
     
     // The index we are currently looking for
-    int currSearchIndex = 1;
+    int currSearchPos = 1;
     
-    while (currSearchIndex < allUrls->nNodes + 1) {
+    // loop over every position we need to find the url for
+    while (currSearchPos < allUrls->nNodes + 1) {
         
-        int currCheckIndex = 1;
+        int i = 0;
         
-        while (currCheckIndex < allUrls->nNodes) {
+        // Loop over every url to see if its guessed position is the one
+        // we are up to
+        while (i < allUrls->nNodes) {
             
-            if (bestGuess[currCheckIndex - 1] == currSearchIndex) 
+            if (bestGuess[i] == currSearchPos) {
+                
+                printf("%s\n", listGetFromIndex(allUrls, i));
+                // Break as we found it
+                break;
             
-            printf("%s\n", listGetFromIndex(allUrls, bestGuess[currCheckIndex - 1]));
+            }
             
-            currCheckIndex++;
+            i++;
             
         }
-        
-        currSearchIndex++;
+        currSearchPos++;
         
     }
     

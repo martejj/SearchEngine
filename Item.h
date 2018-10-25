@@ -1,8 +1,13 @@
-// Item.h  ... definition for items in Queues
-// Written by John Shepherd, March 2013 - copied from labs
-
 #ifndef ITEM_H
 #define ITEM_H
+
+/*
+ * Item.h
+ * Github: https://github.com/martejj/SearchEngine/Item.h
+ * Author: John Shepherd
+ * Year: 2013
+ * An interface of an item for a binary tree ADT and sorted list ADT
+ */
 
 #include <string.h>
 

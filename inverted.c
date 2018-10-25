@@ -1,32 +1,10 @@
 /*
  * inverted.c
  * Github: https://github.com/martejj/SearchEngine/inverted.c
- * 
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
-#include "readData.h"
-#include "BTree.h"
-#include "SortedList.h"
-#include "Queue.h"
-
-/*
- * This out put a binary tree to a file in desired format as specified
- * in assignment requirement.
- */
-void printBTtoFile(BTreePtr root, FILE *fptr);
-
-/*
- * This out put a sorted list to a file in desired format as specified
- * in assignment requirement.
- */
-void printSLtoFile(SortedListPtr head, FILE *fptr);
-
-/*
+ * Author: Grace Nguyen & Harrison Steyn
+ * Year: 2018
+ * An implementation of an inverted index calculator
+ * From specification:
  * Reads data from a given collection of pages in collection.txt
  * and generates an "inverted index" that provides a sorted list
  * (set) of urls for every word in a given collection of pages.
@@ -42,6 +20,22 @@ void printSLtoFile(SortedListPtr head, FILE *fptr);
  * Each list of urls (for a single word) should be alphabetically
  * ordered, using ascending order.
  */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <errno.h>
+#include "readData.h"
+#include "BTree.h"
+#include "SortedList.h"
+#include "Queue.h"
+
+void printBTtoFile(BTreePtr root, FILE *fptr);
+
+void printSLtoFile(SortedListPtr head, FILE *fptr);
+
 
 int main(int argc, char *argv[]) {
 
@@ -104,7 +98,7 @@ int main(int argc, char *argv[]) {
 void printBTtoFile(BTreePtr root, FILE *fptr) {
     if (root == NULL) return;
     printBTtoFile(root->left, fptr);
-    fprintf(fptr,"%s ", root->word);
+    fprintf(fptr,"%s  ", root->word);
     printSLtoFile(root->urls, fptr);
     printBTtoFile(root->right, fptr);
 }

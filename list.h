@@ -4,7 +4,9 @@
 /*
  * list.h
  * Github: https://github.com/martejj/SearchEngine/list.h
- * 
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An interface of a list
  */
 
 typedef struct _listNode *ListNode;

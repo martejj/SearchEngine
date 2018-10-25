@@ -1,7 +1,10 @@
 /*
  * readData.c
  * Github: https://github.com/martejj/SearchEngine/readData.c
- * 
+ * Authors: Harrison Steyn & Grace Nguyen
+ * Year: 2018
+ * A set of utility functions to aid in the reading of data from 
+ * files 
  */
 
 #include <stdio.h>
@@ -13,8 +16,6 @@
 #include "readData.h"
 
 static char *mystrdup(char *string);
-
-static char *concat2(const char *s1, const char *s2);
 
 /*
  * Returns a list of every word in the file (every section of text
@@ -56,11 +57,7 @@ List getListOfSec1FromFile(char *fileName) {
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
 		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-<<<<<<< Updated upstream
 		exit(1);
-=======
-	    exit(1);
->>>>>>> Stashed changes
 	}
     
     List list = listCreate();
@@ -106,7 +103,9 @@ List getListOfSec2FromFile(char *fileName) {
     }
 
 	// Skip Section-1 #start Section-2
-	fscanf(file, "%*s %*s %*s %s", buffer); // TODO correct?
+	fscanf(file, "%s", buffer);
+    fscanf(file, "%s", buffer);
+    fscanf(file, "%s", buffer);
 	
 	while (fscanf(file, "%s", buffer) == 1 && strcmp(buffer, "#end") != 0) {
 	
@@ -173,7 +172,7 @@ BTreePtr getBTree(List urls, char *dir) {
 // May need to consider another structure
 
 // combining two strings together (from previous assignment)
-static char* concat2(const char* s1, const char* s2) {
+char* concat2(const char* s1, const char* s2) {
 	char *result = NULL;
 	if (s1 != NULL && s2 != NULL) {
 		result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator

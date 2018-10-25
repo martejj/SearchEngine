@@ -1,6 +1,14 @@
 #ifndef SORTEDLIST_H
 #define SORTEDLIST_H
 
+/*
+ * SortedList.h
+ * Github: https://github.com/martejj/SearchEngine/SortedList.h
+ * Author: John Shepherd
+ * Year: 2013
+ * An interface of a sorted list for use in BTree.c
+ */
+
 #include "Item.h"
 #include "Queue.h"
 #include <stdio.h>

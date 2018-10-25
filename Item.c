@@ -1,6 +1,11 @@
-// Item.c  ... definition for items in Queues
-// Written by John Shepherd, March 2013 - copied from labs
-
+/*
+ * Item.c
+ * Github: https://github.com/martejj/SearchEngine/Item.c
+ * Author: John Shepherd
+ * Year: 2013
+ * An implementation of an item for a binary tree ADT and sorted list ADT
+ */
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include "Item.h"

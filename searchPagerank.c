@@ -1,3 +1,17 @@
+/*
+ * searchPagerank.c
+ * Github: https://github.com/martejj/SearchEngine/searchPagerank.c
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An implementation of a search engine that uses inverted indexing and
+ * weighted pagerank
+ * From Specification: 
+ * A simple search engine that given search terms (words) as commandline 
+ * arguments, finds pages with one or more search terms and outputs 
+ * top 30 pages in descending order of number of search terms found 
+ * and then within each group, descending order of Weighted PageRank.
+ */
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -7,9 +21,11 @@
 
 #define TRUE    1
 #define FALSE   0
+#define MAX_PRINT 30
 
 typedef struct _entry *Entry;
 
+// Stores a search entry
 struct _entry{
     
     char *url;
@@ -46,10 +62,10 @@ int main(int argc, char *argv[]) {
     
     // listPrint(terms, stdout);
     
-    List inverted = getListOfWordsFromFile("tests/1/invertedIndex.txt");
+    List inverted = getListOfWordsFromFile("invertedIndex.txt");
     // In form "term" -> "url" -> ... -> "url" (repeat)
     
-    List pagerank = getListOfWordsFromFile("tests/1/pagerankList.txt");
+    List pagerank = getListOfWordsFromFile("pagerankList.txt");
     // In form "urlxx" -> "numOuts" -> "PR" (repeat)
     
     ListNode currTerm = terms->head;
@@ -59,6 +75,7 @@ int main(int argc, char *argv[]) {
     
     i = 0;
     
+    // And array of sorted entry structs
     struct _entry entries[numUrls];
     
     ListNode curr = pagerank->head;
@@ -113,16 +130,26 @@ int main(int argc, char *argv[]) {
     
     i = 0;
     
-    while (i < numUrls) {
+    int numPrinted = 0;
+    
+    // Print out ordered and only ones that have hits
+    // Also only max 30.
+    while (i < numUrls && numPrinted < MAX_PRINT) {
         
-        printf("url: %s, nRef: %d, pr: %lf\n",
-        entries[i].url,
-        entries[i].nRef,
-        entries[i].pr);
+        if (entries[i].nRef > 0) {
+            printf("%s\n", entries[i].url);
+            numPrinted++;
+        }
         
         i++;
         
     }
+    
+    // Free lists
+    
+    listFree(terms);
+    listFree(inverted);
+    listFree(pagerank);
     
 }
 

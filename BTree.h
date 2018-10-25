@@ -1,7 +1,16 @@
 #ifndef BTREE_H
 #define BTREE_H
 
+/*
+ * BTree.h
+ * Github: https://github.com/martejj/SearchEngine/BTree.h
+ * Author: John Shepherd
+ * Year: 2013
+ * An interface of a binary tree ADT
+ */
+
 #include "SortedList.h"
+#include "Item.h"
 
 typedef struct BTree {
     Item word;

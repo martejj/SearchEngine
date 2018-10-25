@@ -1,3 +1,11 @@
+/*
+ * URLNode.c
+ * Github: https://github.com/martejj/SearchEngine/URLNode.c
+ * Author: Grace Nguyen
+ * Year: 2018
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

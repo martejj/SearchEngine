@@ -1,3 +1,12 @@
+/*
+ * graph.c
+ * Github: https://github.com/martejj/SearchEngine/graph.c
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An implementation for a sparse graph (as it uses list-adjacency representation)
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -8,7 +17,7 @@
 #define FALSE   0
 
 // A  list contains all out links of the key
-// use adjacency list representation as this is a sparce graph
+// use adjacency list representation as this is a sparse graph
 struct _list {
     
     int id;
@@ -35,8 +44,6 @@ static void appendVertex(List list, Vertex vertex);
 static int getNumVerticesIn(Graph g, int id);
 
 static int listContains(List list, int id);
-
-void printTokens(char **tokens);
 
 static char *mystrdup(char *string);
 
@@ -105,9 +112,11 @@ void graphFree(Graph g) {
     
     int i = 0;
     
+    // Loop over every list in the vertices array and listFree
     while (i < g->numVertices) {
         
         listFree(g->vertices[i]);
+        free(g->names[i]);
         
         i++;
     }
@@ -129,6 +138,7 @@ static void listFree(List list) {
     Vertex curr = list->head;
     Vertex prev = NULL;
     
+    // Loop through each node and free the previous one
     while (curr != NULL) {
         
         prev = curr;
@@ -154,11 +164,13 @@ int graphAddVertex(Graph g, char *key) {
     // So that we dont have two entries for the same key
     if (graphKeyExists(g, key)) return -1;
     
+    // Duplicate the string so it is not overwritten
     g->names[g->numVertices] = mystrdup(key);
     
     g->vertices[g->numVertices] = newVertexList(g->numVertices);
     g->numVertices++;
     
+    // Returns the id
     return g->numVertices - 1; 
 
 }
@@ -171,6 +183,7 @@ int graphKeyExists(Graph g, char *key) {
     
     int i = 0;
     
+    // Loop over every key and return TRUE if found
     while (i < g->numVertices) {
         
         if (g->names[i] != NULL && strcmp(g->names[i], key) == 0) return TRUE;
@@ -189,6 +202,7 @@ int graphKeyExists(Graph g, char *key) {
 
 int graphGetNumOutLinks(Graph g, int id) {
     
+    // This is saved so it is simple
     return g->vertices[id]->numVertices;
     
 }
@@ -205,14 +219,14 @@ void graphConnectVertices(Graph g, int src,  int dst) {
     // No self links are allowed
     if (src == dst) return;
         
+    // They must be valid links
     if (!graphIsIDValid(g, src) || !graphIsIDValid(g, dst)) return;
     
     List list = g->vertices[src];
         
     assert(list != NULL); // TODO add it?
     
-    // So we dont get multiple edges between same vertex make sure it 
-    // doesnt already exist in the adjacency list of src
+    // No parallel edges
     if (listContains(list, dst)) return;
     
     appendVertex(list, newVertex(dst));
@@ -323,6 +337,7 @@ static int getNumVerticesIn(Graph g, int id) {
     
     int i = 0;
     
+    // Loop over every vertex in the vertices array
     while (i < g->numVertices) {
         
         Vertex curr = g->vertices[i]->head;
@@ -331,6 +346,7 @@ static int getNumVerticesIn(Graph g, int id) {
         // in a vertex adjacency twice
         int found = FALSE;
         
+        // See if it has an outlink to the node we are looking for
         while (curr != NULL && !found) {
             
             if (curr->id == id) {
@@ -354,18 +370,17 @@ static int getNumVerticesIn(Graph g, int id) {
 }
 
 /*
- * Returns a -1 terminated array of ints (ids) that point into an id
+ * Returns an array of ints (ids) that point into an id that is *num long
  */
 
 int *graphGetInlinkIDsFromID(Graph g, int id, int *num) {
 
+    // Preproccess so we know how much to calloc
     int numVertices = getNumVerticesIn(g, id);
     
     int *retArray = calloc(numVertices, sizeof(int));
     
-    int currIndex = 0;
-    
-    int i = 0;
+    int currIndex = 0, i = 0;
     
     // Loop over every vertex
     while (i < g->numVertices) {
@@ -404,7 +419,7 @@ int *graphGetInlinkIDsFromID(Graph g, int id, int *num) {
 }
 
 /*
- * Returns a -1-terminated int array of links from id
+ * Returns an int array of links from an id of *num length
  */
 
 int *graphGetOutlinkIDsFromID(Graph g, int id, int *num) {
@@ -419,6 +434,8 @@ int *graphGetOutlinkIDsFromID(Graph g, int id, int *num) {
     
     Vertex curr = g->vertices[id]->head;
     
+    // Loop over every element in the adjacency list and add it to the
+    // array at the current index
     while (curr != NULL) {
         
         retArray[i] = curr->id;
@@ -521,24 +538,6 @@ int graphIsIDValid(Graph g, int id) {
 }
 
 /*
- * Prints a NULL terminated char **
- */
-
-void printTokens(char **tokens) {
-    
-    int i = 0;
-    
-    while (tokens[i] != NULL) {
-        
-        printf("%s\n", tokens[i]);
-        
-        i++;
-        
-    }
-    
-}
-
-/*
  * As strdup does not exist in c11
  */
 
@@ -626,7 +625,6 @@ void graphTest() {
     assert(getNumVerticesIn(g, graphKeyToID(g, "z")) == 0);
     
     graphPrint(g);
-    
     
     graphFree(g);
     

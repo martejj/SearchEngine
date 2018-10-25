@@ -1,3 +1,19 @@
+/*
+ * pagerank.c
+ * Github: https://github.com/martejj/SearchEngine/pagerank.c
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An implementation of weighted pagerank
+ * From specification:
+ * reads data from a given collection of pages in the file collection.txt 
+ * and builds a graph structure using Adjacency List Representation. 
+ * Using the weighted pagerank algorithm, calculates Weighted PageRank 
+ * for every url in the file collection.txt. In this file, urls are 
+ * separated by one or more spaces or/and new line character. 
+ * Adds suffix .txt to a url to obtain file name of the corresponding 
+ * "web page".
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -84,6 +100,8 @@ int main(int argc, char *argv[]) {
     
     while (i < g->numVertices) {
         
+        // Find the current maximum and print it then look for the next
+        // maximum
         int j = 0;
         
         int currMaxIndex = 0;
@@ -204,6 +222,19 @@ double *calculatePagerank(Graph g, double damp, double diffPR, int maxIters) {
     
     }
     
+    // Free the allocated links
+    
+    i = 0;
+    
+    while (i < g->numVertices) {
+        
+        free(inLinks[i]);
+        free(outLinks[i]);
+        
+        i++;
+        
+    }
+    
     return currPR;
     
 }
@@ -315,6 +346,10 @@ Graph createURLGraph(char *dir) {
     
 }
 
+/*
+ * Populates the arrays with linking data
+ */
+ 
 void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
 
     int i = 0;
@@ -324,11 +359,6 @@ void getLinkData(Graph g, int *numInLinks, int *numOutLinks, int **inLinks, int 
         inLinks[i] = graphGetInlinkIDsFromID(g, i, &numInLinks[i]);
         
         outLinks[i] = graphGetOutlinkIDsFromID(g, i, &numOutLinks[i]);
-        
-        // printf("outlinks from %d: \n", i);
-        // printIntArray(outLinks[i], numOutLinks[i]);
-        // printf("inlinks to %d: \n", i);
-        // printIntArray(inLinks[i], numInLinks[i]);
         
         i++;
         
@@ -357,11 +387,6 @@ double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLin
         
     }
     
-    // printf("inLinks u : %d\n", numInLinks[u]);
-    // printf("summation : %d\n", summation);
-
-    // printf("Win[%d][%d] = %lf\n", v, u, numInLinks[u]/(1.0*summation));
-    
     // We return I_u/Sum(I_p), where p is a node that v references
     return numInLinks[u]/(1.0*summation);
     
@@ -373,7 +398,7 @@ double calculateWin(int v, int u, int *numInLinks, int *numOutLinks, int **inLin
 
 double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLinks, int **outLinks) {
     
-    // calculated by W = O_u/(sum(0 .. R(v), O_p)
+    // calculated by W = O_u/(sum(p=0 .. R(v), O_p)
     // R(v) is the set of pages that v references.
     
     int i = 0;
@@ -383,8 +408,6 @@ double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLi
     while (i < numOutLinks[v]) {
         
         // outLinks[i] is set of pages that v references.
-        
-        //printf("a\n");
         
         // As it must return 0.5 if there are no outlinks
         if (numOutLinks[outLinks[v][i]] == 0) {
@@ -401,10 +424,6 @@ double calculateWout(int v, int u, int *numInLinks, int *numOutLinks, int **inLi
         
     }
     
-    //printf("inLinks u : %d\n", numOutLinks[u]);
-    //printf("summation : %lf\n", summation);
-        
-    // printf("Wout[%d][%d] = %lf\n", v, u, (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation));
     // Again it must return 0.5 if there are no outlinks
     return (numOutLinks[u] == 0 ? 0.5 : numOutLinks[u])/(1.0*summation);
     

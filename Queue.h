@@ -1,8 +1,13 @@
-// Queue.h ... interface to Queue ADT
-// Written by John Shepherd, March 2013 - copied from labs
-
 #ifndef QUEUE_H
 #define QUEUE_H
+
+/*
+ * Queue.h
+ * Github: https://github.com/martejj/SearchEngine/Queue.h
+ * Author: John Shepherd
+ * Year: 2013
+ * An interface of a Queue ADT
+ */
 
 #include "Item.h"
 

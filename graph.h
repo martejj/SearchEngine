@@ -1,6 +1,14 @@
-
 #ifndef GRAPH_H
 #define GRAPH_H
+
+/*
+ * graph.h
+ * Github: https://github.com/martejj/SearchEngine/graph.h
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An interface for a sparse graph (as it uses list-adjacency representation)
+ */
+
 
 #define NO_KEY      -1
 
@@ -67,14 +75,13 @@ int graphIDExists(Graph g, int id);
 int graphGetNumOutLinks(Graph g, int id);
 
 /*
- * Returns an int array of links from id num is size of array
- * given key
+ * Returns an array of ints (ids) that point into an id that is *num long
  */
 
 int *graphGetInlinkIDsFromID(Graph g, int id, int *num);
 
 /*
- * Returns an int array of links from id where num is number
+ * Returns an int array of links from an id of *num length
  */
 
 int *graphGetOutlinkIDsFromID(Graph g, int id, int *num);

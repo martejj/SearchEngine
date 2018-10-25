@@ -1,3 +1,14 @@
+/*
+ * searchTfIdf.c
+ * Github: https://github.com/martejj/SearchEngine/searchTfIdf.c
+ * Author: Grace Nguyen
+ * Year: 2018
+ * An implementation of a search engine that uses TFIDF
+ * From Specification: 
+ * A content-based search engine that uses tf-idf values of all query 
+ * terms for ranking. 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,8 +31,8 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-    SortedListPtr corpus = getCollection("collection.txt");
-    int corpusSize = SLsize(corpus);
+    List corpus = getListOfWordsFromFile("collection.txt");
+    int corpusSize = corpus->nNodes;
 
 	FILE* ptr = fopen("invertedIndex.txt", "r");
 	if (ptr == NULL) {
@@ -187,7 +198,7 @@ int main(int argc, char *argv[]) {
 	quickSort1(indices, 0, numberOfUrls - 1, urlNodes);
 
 	for (i = 0; i < numberOfUrls && i < MAX_DISPLAYED_PAGE; i++) {
-		printf("%s, %.7f\n", urlNodes[indices[i]].url,
+		printf("%s %.6f\n", urlNodes[indices[i]].url,
 				urlNodes[indices[i]].rank);
 
 	}
@@ -201,7 +212,7 @@ int main(int argc, char *argv[]) {
 	for (i = 0; i < numberOfSearchTerm; i++) {
 		SLfree(wordToURLs[i]);
 	}
-	SLfree(corpus);
+	listFree(corpus);
 	free(wordToURLs);
 	SLfree(urls);
 	free(urlNodes);

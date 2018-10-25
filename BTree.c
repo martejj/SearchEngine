@@ -1,5 +1,10 @@
-// Queue.c ... implementation of Queue ADT
-// Written by John Shepherd, March 2013 - copied from labs
+/*
+ * BTree.c
+ * Github: https://github.com/martejj/SearchEngine/BTree.c
+ * Author: John Shepherd
+ * Year: 2013
+ * An implementation of a binary tree ADT
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +12,6 @@
 #include <assert.h>
 #include "Item.h"
 #include "BTree.h"
-#include "SortedList.h"
 
 /*
  * Utility function used for debugging purpose.

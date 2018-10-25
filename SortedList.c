@@ -1,6 +1,11 @@
-// Queue.c ... implementation of Queue ADT
-// Written by John Shepherd, March 2013
-
+/*
+ * SortedList.c
+ * Github: https://github.com/martejj/SearchEngine/SortedList.c
+ * Author: John Shepherd
+ * Year: 2013
+ * An implementation of a sorted list for use in BTree.c
+ */
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

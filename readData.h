@@ -4,7 +4,8 @@
 /*
  * readData.h
  * Github: https://github.com/martejj/SearchEngine/readData.h
- * 
+ * Authors: Harrison Steyn & Grace Nguyen
+ * Year: 2018
  */
 
 #define BLANK_TOKENS " \t\r\n\v\f"
@@ -49,5 +50,7 @@ BTreePtr getBTree(List urls, char *dir);
  */
 
 char *trim(char *string);
+
+char *concat2(const char *s1, const char *s2);
 
 #endif

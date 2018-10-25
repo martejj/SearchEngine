@@ -1,10 +1,14 @@
-// Queue.c ... implementation of Queue ADT
-// Written by John Shepherd, March 2013 - copied from labs
-
+/*
+ * Queue.c
+ * Github: https://github.com/martejj/SearchEngine/Queue.c
+ * Author: John Shepherd
+ * Year: 2013
+ * An implementation of a Queue ADT
+ */
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "Item.h"
 #include "Queue.h"
 
 typedef struct QueueNode {

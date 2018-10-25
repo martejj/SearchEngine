@@ -1,6 +1,15 @@
 #ifndef URLNODE_H
 #define URLNODE_H
 
+/*
+ * URLNode.h
+ * Github: https://github.com/martejj/SearchEngine/URLNode.h
+ * Author: Grace Nguyen
+ * Year: 2018
+ * 
+ */
+
+
 #include "Item.h"
 
 typedef struct URLNode {

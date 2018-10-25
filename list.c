@@ -1,7 +1,9 @@
 /*
  * list.c
  * Github: https://github.com/martejj/SearchEngine/list.c
- * 
+ * Author: Harrison Steyn
+ * Year: 2018
+ * An implementation of a list
  */
 
 #include <stdio.h>
@@ -303,7 +305,7 @@ void listFree(List list) {
     
         prev = curr;
         curr = curr->next;    
-        free(prev);
+        listNodeFree(prev);
         
     }
     
