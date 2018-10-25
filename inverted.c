@@ -1,3 +1,9 @@
+/*
+ * inverted.c
+ * Github: https://github.com/martejj/SearchEngine/inverted.c
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,12 +91,9 @@ int main(int argc, char *argv[]) {
     
     printBTtoFile(tree, file);
     fclose(file);
-<<<<<<< HEAD
-    BTfree(free);
-=======
     BTfree(tree);
     listFree(list);
->>>>>>> 6cc75435c5f721207f8567c965d978f9cdd32b0b
+    
     return 0;
 }
 

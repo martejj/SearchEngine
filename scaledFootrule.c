@@ -1,3 +1,9 @@
+/*
+ * scaledFootrule.c
+ * Github: https://github.com/martejj/SearchEngine/scaledFootrule.c
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

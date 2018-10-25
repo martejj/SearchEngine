@@ -1,3 +1,9 @@
+/*
+ * readData.c
+ * Github: https://github.com/martejj/SearchEngine/readData.c
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +26,7 @@ List getListOfWordsFromFile(char *fileName) {
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
 		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-		return NULL;
+		exit(1);
 	}
     
     List list = listCreate();
@@ -50,7 +56,7 @@ List getListOfSec1FromFile(char *fileName) {
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
 		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-		return NULL;
+		exit(1);
 	}
     
     List list = listCreate();
@@ -82,7 +88,7 @@ List getListOfSec2FromFile(char *fileName) {
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
 		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
-		return NULL;
+		exit(1);
 	}
     
     List list = listCreate();

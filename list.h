@@ -1,6 +1,11 @@
-
 #ifndef LIST_H
 #define LIST_H
+
+/*
+ * list.h
+ * Github: https://github.com/martejj/SearchEngine/list.h
+ * 
+ */
 
 typedef struct _listNode *ListNode;
 typedef struct _list *List;
