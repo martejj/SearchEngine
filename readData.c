@@ -56,7 +56,11 @@ List getListOfSec1FromFile(char *fileName) {
 	FILE *file;
 	if ((file = fopen(fileName, "r")) == NULL) {
 		fprintf(stderr, "Error opening file %s : %s\n", fileName, strerror(errno));
+<<<<<<< Updated upstream
 		exit(1);
+=======
+	    exit(1);
+>>>>>>> Stashed changes
 	}
     
     List list = listCreate();

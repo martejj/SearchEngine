@@ -17,6 +17,9 @@ double calculateGuess(List allUrls, List fileText[], int numFiles, int guesses[]
 
 double scaledFootruleDistance(int oldPos, int oldSize, int newPos, int newSize);
 
+void permute(int data[], int start, int maxIndex, List allUrls, 
+    List rankings[], int numRankings, double *bestGuessValue, int bestGuess[]);
+
 int main(int argc, char *argv[]) {
     
     // 1 less as it counts index 0 which isnt a file
@@ -48,14 +51,120 @@ int main(int argc, char *argv[]) {
         i++;
 
     }
+
+    int guesses[allUrls->nNodes];
+
+    int bestGuess[allUrls->nNodes];
+    memset(bestGuess, 0, allUrls->nNodes*sizeof(int));
     
-    int guesses[] = {1, 4, 2, 5, 3};
+    double bestGuessValue = 99999999;
     
-    double guess = calculateGuess(allUrls, fileText, numFiles, guesses);
+    // The guesses array needs to contain all numbers possible
+    for (i = 0; i < allUrls->nNodes; i++) guesses[i] = i + 1;
+    
+    // Use the permute function to calculate the best guess
+    permute(guesses, 0, allUrls->nNodes - 1,
+                allUrls, fileText, numFiles, &bestGuessValue, bestGuess);
+    
+    printf("%lf\n", bestGuessValue);
+    
+    // The index we are currently looking for
+    int currSearchIndex = 1;
+    
+    while (currSearchIndex < allUrls->nNodes + 1) {
+        
+        int currCheckIndex = 1;
+        
+        while (currCheckIndex < allUrls->nNodes) {
+            
+            if (bestGuess[currCheckIndex - 1] == currSearchIndex) 
+            
+            printf("%s\n", listGetFromIndex(allUrls, bestGuess[currCheckIndex - 1]));
+            
+            currCheckIndex++;
+            
+        }
+        
+        currSearchIndex++;
+        
+    }
+    
+    // Free memory
     
     i = 0;
     
-    printf("%lf\n", guess);
+    while (i < numFiles) {
+        
+        listFree(fileText[i]);
+        
+        i++;
+        
+    }
+    
+    listFree(allUrls);
+    
+}
+
+/*
+ * Swaps the values of two pointers
+ */
+ 
+void swap(int *x, int *y) {
+    
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+    
+}
+
+/*
+ * Adapted from: 
+ * https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
+ * - data contains the sequence to permute
+ * - start is where we are up to in permuting it (recursive)
+ * - maxIndex is the maximum index in data
+ * - the rest is for calculating the guess value
+ * - brute force approach
+ */
+
+void permute(int data[], int start, int maxIndex, List allUrls, 
+    List rankings[], int numRankings, double *bestGuessValue, int bestGuess[]) {
+    
+    // If we have completed this permutation
+    if (start == maxIndex) {
+        
+        // Calculate the value for this guess
+        double guess = calculateGuess(allUrls, rankings, numRankings, data);
+        
+        // If this guess is better than the current best
+        if (guess < *bestGuessValue) {
+            
+            // Set the guess and copy in this sequence
+            *bestGuessValue = guess;
+            memcpy(bestGuess, data, (maxIndex + 1)*sizeof(int));
+            
+        }
+        
+    } else {
+    
+        int i = start;
+        
+        // Loop over every index swapping and then unswapping
+        // in order to get different permutations
+        while (i <= maxIndex) {
+            
+            swap(data + start, data + i);
+            // Recursively call function but with start one further
+            permute(data, start + 1, maxIndex,
+                allUrls, rankings, numRankings, bestGuessValue, bestGuess);
+            // Undo the swap
+            swap(data + start, data + i);
+            
+            i++;
+            
+        }
+    
+    }
     
 }
 
@@ -77,12 +186,14 @@ double calculateGuess(List allUrls, List rankings[], int numRankings, int guesse
     
     double summation = 0;
     
+    // Loop over each different ranking system
     while (currResultIndex < numRankings) {
         
         List currRank = rankings[currResultIndex];
         ListNode currEntry = currRank->head;
         int pos = 0;
         
+        // Loop over every ordered ranking in the ranking system
         while(currEntry != NULL) {
             
             // As allUrls is the union of every Rank list we assume this is a valid index

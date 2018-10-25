@@ -104,6 +104,13 @@ int listContains(List list, char *data);
 int listIndexOf(List list, char *data);
 
 /*
+ * Returns the index of the node 
+ * if it is not contained it returns NULL
+ */
+
+char *listGetFromIndex(List list, int index);
+
+/*
  * Prints a given list to the specified file
  */
 

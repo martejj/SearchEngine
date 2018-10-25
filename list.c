@@ -362,6 +362,32 @@ int listIndexOf(List list, char *data) {
 }
 
 /*
+ * Returns the index of the node 
+ * if it is not contained it returns NULL
+ */
+
+char *listGetFromIndex(List list, int index) {
+    
+    assert(list != NULL);
+    
+    ListNode curr = list->head;
+    
+    int i = 0;
+    
+    while (curr != NULL) {
+    
+        if (i == index) return curr->data;
+    
+        curr = curr->next;
+        i++;
+        
+    }
+    
+    return NULL;
+    
+}
+
+/*
  * Prints a given list to the specified file
  */
 
