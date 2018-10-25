@@ -1,6 +1,11 @@
-
 #ifndef LIST_H
 #define LIST_H
+
+/*
+ * list.h
+ * Github: https://github.com/martejj/SearchEngine/list.h
+ * 
+ */
 
 typedef struct _listNode *ListNode;
 typedef struct _list *List;
@@ -97,6 +102,13 @@ int listContains(List list, char *data);
  */
 
 int listIndexOf(List list, char *data);
+
+/*
+ * Returns the index of the node 
+ * if it is not contained it returns NULL
+ */
+
+char *listGetFromIndex(List list, int index);
 
 /*
  * Prints a given list to the specified file

@@ -1,3 +1,9 @@
+/*
+ * list.c
+ * Github: https://github.com/martejj/SearchEngine/list.c
+ * 
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -352,6 +358,32 @@ int listIndexOf(List list, char *data) {
     }
     
     return -1;
+    
+}
+
+/*
+ * Returns the index of the node 
+ * if it is not contained it returns NULL
+ */
+
+char *listGetFromIndex(List list, int index) {
+    
+    assert(list != NULL);
+    
+    ListNode curr = list->head;
+    
+    int i = 0;
+    
+    while (curr != NULL) {
+    
+        if (i == index) return curr->data;
+    
+        curr = curr->next;
+        i++;
+        
+    }
+    
+    return NULL;
     
 }
 

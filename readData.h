@@ -1,6 +1,11 @@
-
 #ifndef READDATA_H
 #define READDATA_H
+
+/*
+ * readData.h
+ * Github: https://github.com/martejj/SearchEngine/readData.h
+ * 
+ */
 
 #define BLANK_TOKENS " \t\r\n\v\f"
 #define COMMA_BLANK_TOKENS " ,\t\r\n\v\f"
